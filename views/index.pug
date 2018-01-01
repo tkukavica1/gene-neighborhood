@@ -1,0 +1,11 @@
+doctype html
+html(lang='en')
+    head
+        title GeneHood
+        link(href='node_modules/bootstrap/dist/css/bootstrap.min.css', rel='stylesheet')
+        link(href='assets/style.css', rel="stylesheet", type='text/css')
+    body
+        script(src='public/app.js')
+        h1 GeneHood
+        label(class="btn btn-primary", id="fileFormLabel", for="jsonUpload") Upload JSON
+            input(type='file', id='jsonUpload', style='display: none', onChange='uploadData(this)')
