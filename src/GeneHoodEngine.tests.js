@@ -10,6 +10,11 @@ const filePathOut = path.resolve(__dirname, '..', 'data-test', 'testing.txt')
 
 describe('Load fasta', function() {
 	it('should load the files in Seq class', function() {
-		return gn.getGNFromStableList(filePathIn, filePathOut)
+		this.timeout(10000)
+		return gn.getGNFromStableList(filePathIn, filePathOut).then((duh) => {
+			expect(1).eql(1)
+		}).catch((err) => {
+			console.log(err)
+		})
 	})
 })
