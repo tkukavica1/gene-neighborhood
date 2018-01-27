@@ -6,7 +6,7 @@ const expect = require('chai').expect
 const gn = require('./GeneHoodEngine')
 
 const filePathIn = path.resolve(__dirname, '..', 'data-test', 'flgB.stables.list')
-const filePathOut = path.resolve(__dirname, '..', 'data-test', 'testing.txt')
+const filePathOut = path.resolve(__dirname, '..', 'data-test', 'testing.fa')
 
 describe('Load fasta', function() {
 	it('should load the files in Seq class', function() {
