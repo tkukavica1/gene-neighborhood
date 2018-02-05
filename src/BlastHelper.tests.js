@@ -1,16 +1,19 @@
 'use strict'
 
 const path = require('path')
+const fs = require('fs')
+const glob = require('glob')
 
 const chai = require('chai')
 const expect = chai.expect
 
 const BlastHelper = require('./BlastHelper')
 
-const filePathIn = path.resolve(__dirname, '..', 'data-test', 'flgB.stables.list')
-const filePathOut = path.resolve(__dirname, '..', 'data-test', 'testing.txt')
+const testDataPath = path.resolve(__dirname, '..', 'data-test')
+const largerFasta = path.resolve(testDataPath, 'largerFasta.fa')
 
-describe.only('BlastHelper', function() {
+
+describe('BlastHelper', function() {
 	describe('checkThirdParty', function() {
 		it('if engine is there, then it is ok', function() {
 			const blastHelper = new BlastHelper()
@@ -21,7 +24,7 @@ describe.only('BlastHelper', function() {
 				db: 'makeblastdb',
 				engine: 'superblastfast'
 			}
-			const blastHelper = new BlastHelper(null, fakeCommands)
+			const blastHelper = new BlastHelper(null, null, fakeCommands)
 			expect(blastHelper.checkThirdParty.bind(blastHelper)).to.throw(`The program ${fakeCommands.engine} is not installed or not in PATH.`)
 		})
 		it('if db command is NOT there, expect to throw error', function() {
@@ -29,7 +32,7 @@ describe.only('BlastHelper', function() {
 				db: 'makddssaeblastdb',
 				engine: 'blastp'
 			}
-			const blastHelper = new BlastHelper(null, fakeCommands)
+			const blastHelper = new BlastHelper(null, null, fakeCommands)
 			expect(blastHelper.checkThirdParty.bind(blastHelper)).to.throw(`The program ${fakeCommands.db} is not installed or not in PATH.`)
 		})
 	})
@@ -37,7 +40,7 @@ describe.only('BlastHelper', function() {
 		it('should generate the right commands for making db and running the search engine', function() {
 			const expectedInstructions = {
 				db: 'makeblastdb -in geneHood.fa -out gndb -dbtype prot',
-				engine: 'blastp -db gndb -query geneHood.fa -out blastp.genehood.dat -num_threads 10 -outfmt "6 qseqid sseqid bitscore evalue qlen length qcovs slen" -evalue 0.01 -max_target_seqs 100000'
+				engine: 'blastp -db gndb -query geneHood.fa -out blastp.genehood.xml -num_threads 10 -outfmt 5 -evalue 0.01 -max_target_seqs 100000'
 			}
 			const blastHelper = new BlastHelper()
 			blastHelper.generateCommands()
@@ -46,7 +49,7 @@ describe.only('BlastHelper', function() {
 	})
 	describe('runCommand', function() {
 		it('should run commands', function() {
-			process.chdir('./data-test')
+			process.chdir(testDataPath)
 			const blastHelper = new BlastHelper()
 			blastHelper.generateCommands()
 			blastHelper.runCommand('db').then(blastHelper.runCommand('engine').catch((err) => {
@@ -55,6 +58,51 @@ describe.only('BlastHelper', function() {
 			.catch((err) => {
 				console.log(err)
 			})
+		})
+		it('should read it too', function() {
+			const blastHelper = new BlastHelper()
+			blastHelper.generateCommands()
+			return blastHelper.runCommand('db').then(() => {
+				return blastHelper.runCommand('engine').then(() => {
+					return blastHelper.parseOutput().then(() => {
+						return fs.stat(blastHelper.fileNames_.parsed, (err, stat) => {
+							expect(err).to.be.null
+						})
+					})
+				})
+			})
+			.catch((err) => {
+				console.log(err)
+			})
+		})
+		it('should read it too, even for larger fasta', function() {
+			this.timeout(10000)
+			const blastHelper = new BlastHelper(largerFasta)
+			blastHelper.generateCommands()
+			return blastHelper.runCommand('db').then(() => {
+				return blastHelper.runCommand('engine').then(() => {
+					return blastHelper.parseOutput().then(() => {
+						return fs.stat(blastHelper.fileNames_.parsed, (err, stat) => {
+							expect(err).to.be.null
+						})
+					})
+				})
+			})
+			.catch((err) => {
+				console.log(err)
+			})
+		})
+	})
+	afterEach(function() {
+		let files = []
+		let configFilenamePattern = path.resolve(testDataPath, 'geneHood*')
+		files = files.concat(glob.glob.sync(configFilenamePattern))
+		configFilenamePattern = path.resolve(testDataPath, 'gndb.*')
+		files = files.concat(glob.glob.sync(configFilenamePattern))
+		configFilenamePattern = path.resolve(testDataPath, 'blastp.*')
+		files = files.concat(glob.glob.sync(configFilenamePattern))
+		files.forEach(function(file) {
+			fs.unlinkSync(file)
 		})
 	})
 })
