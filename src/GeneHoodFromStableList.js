@@ -39,9 +39,13 @@ function parser() {
 const getGN = function(downstream = kDefault.downstream, upstream = kDefault.upstream) {
 	return through2.obj(function(chunk, enc, next) {
 		const self = this
+		let data = {
+			ref: chunk
+		}
 		mistGenes.getGeneHood(chunk, downstream, upstream).then(function(result) {
-			logGN.info(`Done fetching ${chunk}`)
-			self.push(result)
+			logGN.info(`Done fetching geneHood of ${chunk}`)
+			data.gn = result
+			self.push(data)
 			next()
 		})
 		.catch((err) => {
@@ -53,8 +57,10 @@ const getGN = function(downstream = kDefault.downstream, upstream = kDefault.ups
 function addSeqInfo() {
 	return through2.obj(function(chunk, enc, next) {
 		const self = this
-		mistGenes.addAseqInfo(chunk).then((genes) => {
-			self.push(genes)
+		mistGenes.addAseqInfo(chunk.gn).then((genes) => {
+			for (let i = 0, N = chunk.gn.length; i < N; i++)
+				chunk.gn[i] = genes[i]
+			self.push(chunk)
 			next()
 		})
 		.catch((err) => {
@@ -65,10 +71,11 @@ function addSeqInfo() {
 
 function writeFasta() {
 	return through2.obj(function(chunk, enc, next) {
-		const genomeVersion = chunk[0].stable_id.split('-')[0]
+		logGN.info(`Writing Fasta data from ${chunk.ref}`)
+		const genomeVersion = chunk.ref.split('-')[0]
 		mistGenomes.getGenomeInfoByVersion(genomeVersion).then((genomeInfo) => {
 			const mkFasta = new NodeMist3.MakeFasta(genomeInfo)
-			const fastaEntries = mkFasta.process(chunk)
+			const fastaEntries = mkFasta.process(chunk.gn)
 			this.push(fastaEntries.join(''))
 			next()
 		})
@@ -78,19 +85,62 @@ function writeFasta() {
 	})
 }
 
-const fetch = function(filePathIn, filePathOut, downstream = kDefault.downstream, upstream = kDefault.upstream) {
+function writeGN() {
+	const allData = []
+	return through2.obj(function(chunk, enc, next) {
+		logGN.info(`Collecting geneHood data from ${chunk.ref}`)
+		allData.push(chunk)
+		next()
+	}, function(next) {
+		this.push(JSON.stringify(allData, null, ' '))
+		next()
+	})
+}
+
+const fetch = function(filePathIn, filePathOut, filePathGNOut, downstream = kDefault.downstream, upstream = kDefault.upstream) {
 	return new Promise((resolve, reject) => {
 		logGN.info('Preparing the data')
 		const reader = fs.ReadStream(filePathIn)
-		const writer = fs.WriteStream(filePathOut)
-		const pipeline = pumpify(parser(), getGN(downstream, upstream), addSeqInfo(), writeFasta(), writer)
-		reader.pipe(pipeline)
-			.on('finish', () => {
-				logGN.info(`Data fetched and stored in ${filePathOut}`)
-				resolve(filePathOut)
+		const writerF = fs.WriteStream(filePathOut)
+		const writerG = fs.WriteStream(filePathGNOut)
+		const commonPipeline = pumpify.obj(reader, parser(), getGN(downstream, upstream), addSeqInfo())
+		const fastaPipeline = commonPipeline.pipe(pumpify.obj(writeFasta(), writerF))
+		const geneHoodPipeline = commonPipeline.pipe(pumpify.obj(writeGN(), writerG))
+		const pipelines = []
+
+		pipelines.push(
+			new Promise((res, rej) => {
+				fastaPipeline
+					.on('finish', () => {
+						logGN.info(`Data fetched and stored in ${filePathOut}`)
+						res(filePathOut)
+					})
+					.on('error', (err) => {
+						logGN.error('Something went wrong in the fasta pipeline.')
+						rej(err)
+					})
 			})
-			.on('error', (err) => {
-				logGN.error('Something went wrong.')
+		)
+
+		pipelines.push(
+			new Promise((res, rej) => {
+				geneHoodPipeline
+					.on('finish', () => {
+						logGN.info(`Data fetched and stored in ${filePathGNOut}`)
+						res(filePathGNOut)
+					})
+					.on('error', (err) => {
+						logGN.error('Something went wrong in the geneHood pipeline.')
+						rej(err)
+					})
+			})
+		)
+
+		Promise.all(pipelines)
+			.then((paths) => {
+				resolve(paths)
+			})
+			.catch((err) => {
 				reject(err)
 			})
 	})
