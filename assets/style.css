@@ -1,3 +1,56 @@
-body {
-    padding: 50px;
+body, html {
+    padding: 30px;
+    height: 100%;
+    width: 100%
+}
+
+.container {
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+.error {
+    display: table-cell;
+    width: 500px;
+    height: 200px;
+    border-radius: 10px;
+    justify-content: center;
+    vertical-align: middle;
+    text-align: center;
+    z-index: 11;
+    opacity: 0.9;
+}
+
+#GN {
+    position: absolute;
+    margin-top: 10px;
+    width: 90%;
+    height: 70%;
+}
+
+.geneInfo {
+    position: absolute;
+    display: table-row;
+    top: 40px;
+    left: 250px;
+    height: 130px;
+    width: 100%;
+    z-index: 10;
+}
+
+#divColor, #divTip, #divSlider {
+    display: table-cell;
+}
+
+#divColor {
+    vertical-align: middle
+}
+
+#divSlider {
+    width: 100px;
+    height: 130px;
+}
+
+#evalueCutOff {
+    transform: translate(0px, 50px) rotate(-90deg);
 }
