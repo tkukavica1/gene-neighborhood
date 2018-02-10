@@ -35,7 +35,10 @@ const pack_ = (blastFile, phyloFile, tempGeneFile, packedFile, pipeline) => {
 				const blastDataForOneGene = blastData.iterations.filter((query) => {
 					return query['query-def'].split('|')[1] === gnData[i].gn[j].stable_id
 				})[0]
-				gnData[i].gn[j].blast = blastDataForOneGene.hits
+				if (blastDataForOneGene)
+					gnData[i].gn[j].blast = blastDataForOneGene.hits
+				else
+				gnData[i].gn[j].blast = []
 			}
 		}
 		packed.data = gnData
@@ -73,6 +76,9 @@ class GeneHoodEngine {
 				this.log.info(`Running BLAST on ${this.tempFastaFile_}`)
 				return runBlast_(this.tempFastaFile_)
 			})
+			.catch((err) => {
+				throw err
+			})
 			.then((blastFile) => {
 				this.pipeline_.runBlast = true
 				this.log.info(`Packing results ${blastFile}`)
@@ -83,9 +89,6 @@ class GeneHoodEngine {
 			})
 			.then(() => {
 				this.log.info('All done')
-			})
-			.catch((err) => {
-				throw err
 			})
 	}
 }

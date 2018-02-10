@@ -60,7 +60,7 @@ const getGN = function(downstream = kDefault.downstream, upstream = kDefault.ups
 function addSeqInfo() {
 	return through2.obj(function(chunk, enc, next) {
 		const self = this
-		mistGenes.addAseqInfo(chunk.gn).then((genes) => {
+		mistGenes.addAseqInfo(chunk.gn, {keepGoing: true}).then((genes) => {
 			for (let i = 0, N = chunk.gn.length; i < N; i++)
 				chunk.gn[i] = genes[i]
 			self.push(chunk)
@@ -78,7 +78,7 @@ function writeFasta() {
 		const genomeVersion = chunk.ref.split('-')[0]
 		mistGenomes.getGenomeInfoByVersion(genomeVersion).then((genomeInfo) => {
 			const mkFasta = new NodeMist3.MakeFasta(genomeInfo)
-			const fastaEntries = mkFasta.process(chunk.gn)
+			const fastaEntries = mkFasta.process(chunk.gn, {skipNull: true})
 			this.push(fastaEntries.join(''))
 			next()
 		})

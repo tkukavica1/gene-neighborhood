@@ -39,7 +39,7 @@
     "express": "^4.16.2",
     "jquery": "^3.3.1",
     "multer": "^1.3.0",
-    "node-mist3": "^1.4.5",
+    "node-mist3": "^1.4.8",
     "pick-a-color": "^1.2.3",
     "pug": "^2.0.0-rc.4",
     "pumpify": "^1.4.0",

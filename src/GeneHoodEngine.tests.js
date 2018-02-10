@@ -12,7 +12,7 @@ const filePathIn = path.resolve(testDataPath, 'flgB.stables.list')
 const filePathOut = path.resolve(testDataPath, 'geneHood.pack.json')
 
 
-describe('GeneHood', function() {
+describe.only('GeneHood', function() {
 	it('should work', function() {
 		process.chdir('./data-test')
 		this.timeout(10000)
@@ -20,9 +20,6 @@ describe('GeneHood', function() {
 		return geneHood.run(14, 14).then(() => {
 			const data = fs.readFileSync(filePathOut)
 			expect(data).to.not.eql('')
-		})
-		.catch((err) => {
-			throw Error(err)
 		})
 	})
 	after(function() {
