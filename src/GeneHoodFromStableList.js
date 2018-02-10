@@ -22,16 +22,19 @@ function parser() {
 		bufferParser += chunk.toString()
 		const stableIds = bufferParser.split('\n')
 		bufferParser = stableIds.pop()
-	
+
 		const self = this
 		stableIds.forEach(function(stableId) {
-			logGN.info(`pushing ${stableId}`)
-			self.push(stableId)
+			if (stableId !== '') {
+				logGN.info(`pushing ${stableId}`)
+				self.push(stableId)
+			}
 		})
 		next()
 	}, function(next) {
 		logGN.info('done parsing')
-		this.push(bufferParser)
+		if (bufferParser !== '')
+			this.push(bufferParser)
 		next()
 	})
 }
@@ -49,7 +52,7 @@ const getGN = function(downstream = kDefault.downstream, upstream = kDefault.ups
 			next()
 		})
 		.catch((err) => {
-			next(err)
+			next(err, null)
 		})
 	})
 }
@@ -104,8 +107,8 @@ const fetch = function(filePathIn, filePathOut, filePathGNOut, downstream = kDef
 		const writerF = fs.WriteStream(filePathOut)
 		const writerG = fs.WriteStream(filePathGNOut)
 		const commonPipeline = pumpify.obj(reader, parser(), getGN(downstream, upstream), addSeqInfo())
-		const fastaPipeline = commonPipeline.pipe(pumpify.obj(writeFasta(), writerF))
-		const geneHoodPipeline = commonPipeline.pipe(pumpify.obj(writeGN(), writerG))
+		const fastaPipeline = pumpify.obj(commonPipeline, writeFasta(), writerF)
+		const geneHoodPipeline = pumpify.obj(commonPipeline, writeGN(), writerG)
 		const pipelines = []
 
 		pipelines.push(
@@ -116,7 +119,6 @@ const fetch = function(filePathIn, filePathOut, filePathGNOut, downstream = kDef
 						res(filePathOut)
 					})
 					.on('error', (err) => {
-						logGN.error('Something went wrong in the fasta pipeline.')
 						rej(err)
 					})
 			})
@@ -130,7 +132,6 @@ const fetch = function(filePathIn, filePathOut, filePathGNOut, downstream = kDef
 						res(filePathGNOut)
 					})
 					.on('error', (err) => {
-						logGN.error('Something went wrong in the geneHood pipeline.')
 						rej(err)
 					})
 			})
