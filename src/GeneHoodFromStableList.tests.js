@@ -18,8 +18,8 @@ const fileTestPath = path.resolve(__dirname, '..', 'data-test')
 const filePathIn = path.resolve(fileTestPath, 'flgB.stables.list')
 const filePathInWrongStableId = path.resolve(fileTestPath, 'flgB.stables.wrong.stableId.list')
 const filePathInWrongEmptyLine = path.resolve(fileTestPath, 'flgB.stables.wrong.emptyLine.list')
-const filePathOut = path.resolve(fileTestPath, 'testing.fa')
-const filePathGNOut = path.resolve(fileTestPath, 'testing.genes.json')
+const filePathOut = path.resolve(fileTestPath, 'geneHood.fa')
+const filePathGNOut = path.resolve(fileTestPath, 'geneHood.genes.json')
 
 describe('Fetching sequences', function() {
 	it('should fetch sequences in put in file', function() {
@@ -47,7 +47,6 @@ describe('Fetching sequences', function() {
 		})
 	})
 	afterEach(function() {
-		fs.unlinkSync(filePathOut)
 		fs.unlinkSync(filePathGNOut)
 	})
 })

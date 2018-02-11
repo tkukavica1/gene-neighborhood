@@ -71,6 +71,8 @@ class BlastHelper {
 	runCommand(type) {
 		return new Promise((resolve, reject) => {
 			this.log.info(`Running command: ${this.instructions_[type]}`)
+			if (!this.instructions_[type])
+				reject(Error('unrecognized command'))
 			const proc = childProcess.exec(this.instructions_[type])
 			let message = ''
 			proc.stdout.on('data', (data) => {
@@ -84,7 +86,7 @@ class BlastHelper {
 				if (code === 0)
 					resolve(message)
 				else
-					reject(message)
+					reject(Error(message))
 			})
 		})
 	}

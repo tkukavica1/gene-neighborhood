@@ -12,7 +12,7 @@ const filePathIn = path.resolve(testDataPath, 'flgB.stables.list')
 const filePathOut = path.resolve(testDataPath, 'geneHood.pack.json')
 
 
-describe.only('GeneHood', function() {
+describe('GeneHood', function() {
 	it('should work', function() {
 		process.chdir('./data-test')
 		this.timeout(10000)
@@ -24,7 +24,7 @@ describe.only('GeneHood', function() {
 	})
 	after(function() {
 		let files = []
-		let configFilenamePattern = path.resolve(testDataPath, 'geneHood*')
+		let configFilenamePattern = path.resolve(testDataPath, 'geneHood*json')
 		files = files.concat(glob.glob.sync(configFilenamePattern))
 		configFilenamePattern = path.resolve(testDataPath, 'gndb.*')
 		files = files.concat(glob.glob.sync(configFilenamePattern))

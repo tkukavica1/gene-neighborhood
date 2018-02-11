@@ -5,7 +5,12 @@ const fs = require('fs')
 const glob = require('glob')
 
 const chai = require('chai')
+const chaiAsPromised = require('chai-as-promised')
+
+chai.use(chaiAsPromised)
+
 const expect = chai.expect
+const should = chai.should()
 
 const BlastHelper = require('./BlastHelper')
 
@@ -52,12 +57,15 @@ describe('BlastHelper', function() {
 			process.chdir(testDataPath)
 			const blastHelper = new BlastHelper()
 			blastHelper.generateCommands()
-			blastHelper.runCommand('db').then(blastHelper.runCommand('engine').catch((err) => {
-				throw new Error(err)
-			}))
-			.catch((err) => {
-				console.log(err)
-			})
+			return blastHelper.runCommand('db').then(
+				blastHelper.runCommand('engine').should.be.fulfilled
+			).should.be.fulfilled
+		})
+		it('should NOT run unrecognized commands', function() {
+			process.chdir(testDataPath)
+			const blastHelper = new BlastHelper()
+			blastHelper.generateCommands()
+			return blastHelper.runCommand('badCommand').should.be.rejectedWith('unrecognized command')
 		})
 		it('should read it too', function() {
 			const blastHelper = new BlastHelper()
@@ -70,9 +78,6 @@ describe('BlastHelper', function() {
 						})
 					})
 				})
-			})
-			.catch((err) => {
-				console.log(err)
 			})
 		})
 		it('should read it too, even for larger fasta', function() {
@@ -88,14 +93,11 @@ describe('BlastHelper', function() {
 					})
 				})
 			})
-			.catch((err) => {
-				console.log(err)
-			})
 		})
 	})
 	afterEach(function() {
 		let files = []
-		let configFilenamePattern = path.resolve(testDataPath, 'geneHood*')
+		let configFilenamePattern = path.resolve(testDataPath, 'geneHood.pack.*')
 		files = files.concat(glob.glob.sync(configFilenamePattern))
 		configFilenamePattern = path.resolve(testDataPath, 'gndb.*')
 		files = files.concat(glob.glob.sync(configFilenamePattern))

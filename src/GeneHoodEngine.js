@@ -53,7 +53,7 @@ const pack_ = (blastFile, phyloFile, tempGeneFile, packedFile, pipeline) => {
 
 module.exports =
 class GeneHoodEngine {
-	constructor(stableIdFile, phyloFile = null, packedFile = 'geneHood.pack.json', tempFastaFile = 'geneHood.temp.fa', tempGeneFile = 'geneHood.gene.json') {
+	constructor(stableIdFile, phyloFile = null, packedFile = 'geneHood.pack.json', tempFastaFile = 'geneHood.fa', tempGeneFile = 'geneHood.gene.json') {
 		this.stableIdFile_ = stableIdFile
 		this.phyloFile_ = phyloFile
 		this.packedFile_ = packedFile

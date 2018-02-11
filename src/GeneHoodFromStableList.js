@@ -48,6 +48,9 @@ const getGN = function(downstream = kDefault.downstream, upstream = kDefault.ups
 		mistGenes.getGeneHood(chunk, downstream, upstream).then(function(result) {
 			logGN.info(`Done fetching geneHood of ${chunk}`)
 			data.gn = result
+			data.refStrand = result.filter((gene) => {
+				return gene.stable_id === chunk
+			})[0].strand
 			self.push(data)
 			next()
 		})
