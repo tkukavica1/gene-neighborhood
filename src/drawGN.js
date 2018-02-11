@@ -72,10 +72,12 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 	console.log(`refStart *** ${maxLenGeneCluster}`)
 	console.log(`${GNboxLeft} +++ ${GNboxRight}`)
 
+	const xDomRange = (op.refStrand === '+') ? [GNboxLeft, GNboxRight] : [GNboxRight, GNboxLeft]
+	
 	const xDom = d3
 		.scaleLinear()
 		.domain([0, maxLenGeneCluster])
-		.range([GNboxLeft, GNboxRight])
+		.range(xDomRange)
 
 	for (let i = 0, N = op.gn.length; i < N; i++)
 		op.gn[i] = buildGroupCapabilities(op.gn[i])
@@ -90,16 +92,7 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 		.attr('class', 'arrow')
 		.attr('d', function(gene) {
 			gene.y = (padding + H / 2) + i * (H + paddingBetweenArrows)
-			return arrow2line(
-				makePathOfOneGene_(
-					xDom(gene.start - refStart),
-					xDom(gene.stop) - xDom(gene.start),
-					gene.y,
-					gene.strand,
-					H,
-					arrowBorderWidth
-				)
-			)
+			return makeArrows(gene, H, refStart, xDom, arrowBorderWidth)
 		})
 		.attr('stroke', (gene) => {
 			if (gene.aseq_id)
@@ -129,6 +122,9 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 			return names
 		})
 		.attr('transform', function(gene) {
+
+			const textXDom = (op.refStrand === '+')
+
 			const inclination = 45
 			const dx = this.getComputedTextLength()
 			const x = xDom(gene.start - refStart) + (xDom(gene.stop) - xDom(gene.start))/2 - dx / 2
@@ -142,6 +138,20 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 			currentEvalue = this.value
 			findHomologs(svg, currentEvalue)
 		})
+}
+
+
+function makeArrows(gene, H, refStart, xDom, arrowBorderWidth) {
+	return arrow2line(
+		makePathOfOneGene_(
+			xDom(gene.start - refStart),
+			xDom(gene.stop) - xDom(gene.start),
+			gene.y,
+			gene.strand,
+			H,
+			arrowBorderWidth
+		)
+	)
 }
 
 function makeNewGroup(color) {
