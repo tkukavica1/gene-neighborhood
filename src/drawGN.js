@@ -11,7 +11,11 @@ let colorValue = '000000'
 let currentEvalue = 100
 let groupZero = `${crypto.randomBytes(7).toString('hex')}#white`
 let currentGroup = groupZero
+let ultimatelyMostRight = 0
+let ultimatelyMostLeft = 10^6
 
+const geneNameFontSize = 12
+const geneNameInclination = -45
 
 const maxLogEvalue = 200
 
@@ -60,7 +64,6 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 	const H = 25
 	const arrowBorderWidth = 1
 	const refArrowBorderWidth = 3
-	const geneNameFontSize = 12
 
 	const splitScreen = 2
 	const boxSize = svg.node().getBoundingClientRect()
@@ -84,6 +87,7 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 
 	const gs = svg.append('g')
 		.attr('class', 'geneCluster')
+		.attr('id', `GN${i}`)
 		.selectAll('.geneCluster')
 		.data(op.gn)
 	
@@ -108,13 +112,14 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 		.on('click', (gene) => {
 			toggleGeneSelection_(svg, gene)
 		})
-		.on('mouseover', displayGeneInfo_)
+		.on('mouseover', (gene) => {
+			displayGeneInfo_(gene, '#divTip')
+		})
 
 	gs.enter()
 		.append('text')
 		.attr('class', 'arrowText')
 		.attr('font-size', geneNameFontSize)
-
 		.text((gene) => {
 			let names = ''
 			if (gene.names)
@@ -122,16 +127,15 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 			return names
 		})
 		.attr('transform', function(gene) {
-
-			const textXDom = (op.refStrand === '+')
-
-			const inclination = 45
 			const dx = this.getComputedTextLength()
-			const x = xDom(gene.start - refStart) + (xDom(gene.stop) - xDom(gene.start))/2 - dx / 2
-			const y = gene.y + geneNameFontSize / 2 + H
-			return `translate(${x}, ${y + dx/2 * Math.cos(inclination) + geneNameFontSize/2}) rotate(-${inclination})`
+			const y = gene.y + geneNameFontSize / 2 + H + dx/2 * Math.cos(geneNameInclination) + geneNameFontSize / 2
+			const x = xDom(gene.start - refStart) + (xDom(gene.stop) - xDom(gene.start)) / 2 - dx / 2
+			gene.textPos = {
+				x,
+				y
+			}
+			return `translate(${x} ${y}) rotate(${geneNameInclination}) `
 		})
-
 
 	d3.select('#evalueCutOff')
 		.on('input', function() {
@@ -281,8 +285,9 @@ function toggleGeneSelection_(svg, gene) {
 			.on('click', () => {
 				return false
 			})
-		svg.selectAll('.arrow').on('mouseover', () => {
-			return false
+		svg.selectAll('.arrow').on('mouseover', (gene) => {
+			d3.select('#compTip').style('display', 'table-cell')
+			displayGeneInfo_(gene, '#compTip')
 		})
 		mouseover = false
 		findHomologs(svg, currentEvalue)
@@ -301,7 +306,10 @@ function toggleGeneSelection_(svg, gene) {
 			.on('click', (arrow) => {
 				toggleGeneSelection_(svg, arrow)
 			})
-		svg.selectAll('.arrow').on('mouseover', displayGeneInfo_)
+		svg.selectAll('.arrow').on('mouseover', (gene) => {
+			d3.select('#compTip').style('display', 'none')
+			displayGeneInfo_(gene, '#divTip')
+		})
 		mouseover = true
 		currentGroup = groupZero
 	}
@@ -309,8 +317,8 @@ function toggleGeneSelection_(svg, gene) {
 	console.log(gene)
 }
 
-function displayGeneInfo_(gene) {
-	const divtip = d3.select('#divTip')
+function displayGeneInfo_(gene, tipId) {
+	const divtip = d3.select(tipId)
 	let httpDefaultOptions = {
 		method: 'GET',
 		hostname: 'api.mistdb.com',
@@ -328,7 +336,67 @@ function displayGeneInfo_(gene) {
 	})
 }
 
+function alignClusters(svg, gns, x0, widthGN) {
+	let mostLeft = 10^6 //a large number
+	gns.forEach((gn) => {
+		const box = svg.selectAll('.arrow')
+		.filter((gene) => {
+			return gene.stable_id === gn.ref
+		})
+		.node()
+		.getBBox()
+
+		if (box.x < mostLeft)
+			mostLeft = box.x
+	})
+
+	gns.forEach((gn, i) => {
+		const box = svg.selectAll('.arrow')
+		.filter((gene) => {
+			return gene.stable_id === gn.ref
+		})
+		.node()
+		.getBBox()
+
+		const dx = -1 * (box.x - mostLeft - x0 - widthGN/2)
+		svg.select(`#GN${i}`).selectAll('.arrow')
+			.attr('transform', `translate(${dx}, 0)`)
+		svg.select(`#GN${i}`).selectAll('.arrowText')
+			.attr('transform', function(gene) {
+				const y = gene.textPos.y
+				const x = gene.textPos.x + dx
+				return `translate(${x} ${y}) rotate(${geneNameInclination}) `
+			})
+	})
+}
+
+function reScaleClusters(svg, widthGN) {
+	svg.selectAll('.arrow')
+	.each(function(gene) {
+		const thisBox = svg.selectAll('.arrow')
+			.filter((gene2) => {
+				return gene === gene2
+			})
+			.node()
+			.getBBox()
+
+		const rightBound = thisBox.x + thisBox.width
+		const leftBound = thisBox.x
+		if (ultimatelyMostRight < rightBound)
+			ultimatelyMostRight = rightBound
+		if (ultimatelyMostLeft > leftBound)
+			ultimatelyMostLeft = leftBound
+	})
+
+	const reScaleFactor = widthGN / (ultimatelyMostRight - ultimatelyMostLeft)
+	console.log(reScaleFactor)
+	svg.selectAll('.arrow')
+		.attr('transform', `scale(${reScaleFactor} 0)`)
+}
+
 module.exports = {
 	drawGeneCluster,
-	changeSelectionColor
+	changeSelectionColor,
+	alignClusters,
+	reScaleClusters
 }
