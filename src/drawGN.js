@@ -7,7 +7,7 @@ const crypto = require('crypto')
 
 let mouseover = true
 let selected = false
-let colorValue = '000000'
+let colorValue = '006EBD'
 let currentEvalue = 100
 let groupZero = `${crypto.randomBytes(7).toString('hex')}#white`
 let currentGroup = groupZero
@@ -196,13 +196,8 @@ function buildGroupCapabilities(gene) {
 	}
 
 	gene.popGroup = function() {
-		if (this.groups.length > 1) {
-			console.log(this.groups)
-			console.log(`Poping: ${this.getLastGroup()} from ${this.stable_id}`)
-			console.log(this.groups.pop())
-			console.log(this.groups)
-		}
-		console.log(this.groups)
+		if (this.groups.length > 1)
+			this.groups.pop()
 		return
 	}
 
@@ -214,49 +209,53 @@ function buildGroupCapabilities(gene) {
 	return gene
 }
 
-function findHomologs(queryGene, svg, value, listOfSelectedGenes) {
-	let listOfSelected = listOfSelectedGenes || []
+let listOfSelected = []
+let allBlastHitsThatMatter = []
+
+function findHomologs(queryGene, svg, value) {
 	console.log(listOfSelected)
 	if (selected) {
 		let selGene = queryGene || selected
+
+		for (let i = 0, M = listOfSelected.length; i < M; i++) {
+			if (listOfSelected[i].stable_id === selGene.stable_id)
+				listOfSelected.push(selGene)
+		}
+
+		for (let i = 0, M = listOfSelected.length; i < M; i++) {
+			for (let j = 0, N = listOfSelected[i].blast.length; j < N; j++) {
+				const evalue = listOfSelected.blast[j].hsps[0].evalue
+				const logEvalue = (evalue === 0) ? maxLogEvalue : -Math.log10(evalue)
+				const candidateStableId = listOfSelected.blast[j].def.split('|')[1]
+				if (logEvalue > value && allBlastHitsThatMatter.indexOf(candidateStableId) === -1)
+					allBlastHitsThatMatter.push(candidateStableId)
+				else if (logEvalue < value && allBlastHitsThatMatter.indexOf(candidateStableId) !== -1)
+					allBlastHitsThatMatter = allBlastHitsThatMatter.splice(allBlastHitsThatMatter.indexOf(candidateStableId), 1)
+			}
+		}
+
 		svg.selectAll('.arrow')
 			.filter((gene) => {
-				for (let j = 0, N = selGene.blast.length; j < N; j++) {
-					const evalue = selGene.blast[j].hsps[0].evalue
-					const logEvalue = (evalue === 0) ? maxLogEvalue : -Math.log10(evalue)
-					if (logEvalue > value &&
-						gene.stable_id === selGene.blast[j].def.split('|')[1] &&
+				if (allBlastHitsThatMatter.indexOf(gene.stable_id) !== -1 &&
 						gene.getLastGroup() !== currentGroup &&
 						listOfSelected.indexOf(gene.stable_id) === -1
-					) {
-						// console.log(`turn on: ${gene.stable_id}`)
-						return true
-					}
-				}
+					)
+					return true
 			})
 			.style('fill', (gene) => {
-				if (gene.getLastGroup() !== currentGroup)
-					gene.addGroup(currentGroup)
+				gene.addGroup(currentGroup)
 				listOfSelected.push(gene.stable_id)
-				findHomologs(gene, svg, value, listOfSelected)
+				findHomologs(gene, svg, value)
 				console.log(`turning on: ${gene.stable_id}`)
 				return gene.getColorFill()
 			})
+
 		svg.selectAll('.arrow')
 			.filter((gene) => {
 				return gene.getLastGroup() === currentGroup
 			})
 			.filter((gene) => {
-				for (let j = 0, N = selGene.blast.length; j < N; j++) {
-					const evalue = selGene.blast[j].hsps[0].evalue
-					const logEvalue = (evalue === 0) ? maxLogEvalue : -Math.log10(evalue)
-					if (logEvalue <= value &&
-						gene.stable_id === selGene.blast[j].def.split('|')[1]
-					) {
-						// console.log(`turn off: ${gene.stable_id}`)
-						return true
-					}
-				}
+				return allBlastHitsThatMatter.indexOf(gene.stable_id) === -1
 			})
 			.style('fill', (gene) => {
 				console.log(`turning off: ${gene.stable_id}`)
@@ -264,6 +263,10 @@ function findHomologs(queryGene, svg, value, listOfSelectedGenes) {
 				gene.popGroup()
 				return gene.getColorFill()
 			})
+	}
+	else {
+		listOfSelected = []
+		allBlastHitsThatMatter = []
 	}
 }
 
@@ -292,9 +295,9 @@ function toggleGeneSelection_(svg, gene) {
 			.on('click', () => {
 				return false
 			})
-		svg.selectAll('.arrow').on('mouseover', (gene) => {
+		svg.selectAll('.arrow').on('mouseover', (g) => {
 			d3.select('#compTip').style('display', 'table-cell')
-			displayGeneInfo_(gene, '#compTip')
+			displayGeneInfo_(g, '#compTip')
 		})
 		mouseover = false
 		findHomologs(gene, svg, currentEvalue)
