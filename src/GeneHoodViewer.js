@@ -39,6 +39,8 @@ class GeneHoodViewer {
 			this.data.forEach((geneCluster, i) => {
 				drawGN.drawGeneCluster(svg, geneCluster, i, maxLenGeneCluster, widthGN)
 			})
+			drawGN.alignClusters(svg, this.data, dimensions.width - widthGN, widthGN)
+			// drawGN.reScaleClusters(svg, widthGN)
 		}
 		else {
 			console.log('Error')
