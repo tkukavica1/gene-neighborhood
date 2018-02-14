@@ -136,7 +136,7 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 	d3.select('#evalueCutOff')
 		.on('input', function() {
 			currentEvalue = this.value
-			findHomologs(svg, currentEvalue)
+			findHomologs(null, svg, currentEvalue)
 		})
 }
 
@@ -210,24 +210,31 @@ function buildGroupCapabilities(gene) {
 	return gene
 }
 
-function findHomologs(svg, value) {
+function findHomologs(queryGene, svg, value, listOfSelectedGenes) {
+	let listOfSelected = listOfSelectedGenes || []
+	console.log(listOfSelected)
 	if (selected) {
+		let selGene = queryGene || selected
 		svg.selectAll('.arrow')
 			.filter((gene) => {
-				for (let j = 0, N = selected.blast.length; j < N; j++) {
-					const evalue = selected.blast[j].hsps[0].evalue
+				for (let j = 0, N = selGene.blast.length; j < N; j++) {
+					const evalue = selGene.blast[j].hsps[0].evalue
 					const logEvalue = (evalue === 0) ? maxLogEvalue : -Math.log10(evalue)
 					if (logEvalue > value &&
-						gene.stable_id === selected.blast[j].def.split('|')[1] &&
-						gene.getLastGroup() !== currentGroup
+						gene.stable_id === selGene.blast[j].def.split('|')[1] &&
+						gene.getLastGroup() !== currentGroup &&
+						listOfSelected.indexOf(gene.stable_id) === -1
 					) {
-						console.log(`turn on: ${gene.stable_id}`)
+						// console.log(`turn on: ${gene.stable_id}`)
 						return true
 					}
 				}
 			})
 			.style('fill', (gene) => {
-				gene.addGroup(currentGroup)
+				if (gene.getLastGroup() !== currentGroup)
+					gene.addGroup(currentGroup)
+				listOfSelected.push(gene.stable_id)
+				findHomologs(gene, svg, value, listOfSelected)
 				console.log(`turning on: ${gene.stable_id}`)
 				return gene.getColorFill()
 			})
@@ -236,13 +243,13 @@ function findHomologs(svg, value) {
 				return gene.getLastGroup() === currentGroup
 			})
 			.filter((gene) => {
-				for (let j = 0, N = selected.blast.length; j < N; j++) {
-					const evalue = selected.blast[j].hsps[0].evalue
+				for (let j = 0, N = selGene.blast.length; j < N; j++) {
+					const evalue = selGene.blast[j].hsps[0].evalue
 					const logEvalue = (evalue === 0) ? maxLogEvalue : -Math.log10(evalue)
 					if (logEvalue <= value &&
-						gene.stable_id === selected.blast[j].def.split('|')[1]
+						gene.stable_id === selGene.blast[j].def.split('|')[1]
 					) {
-						console.log(`turn off: ${gene.stable_id}`)
+						// console.log(`turn off: ${gene.stable_id}`)
 						return true
 					}
 				}
@@ -285,7 +292,7 @@ function toggleGeneSelection_(svg, gene) {
 			return false
 		})
 		mouseover = false
-		findHomologs(svg, currentEvalue)
+		findHomologs(gene, svg, currentEvalue)
 	}
 	else {
 		selected = false
@@ -324,7 +331,7 @@ function displayGeneInfo_(gene) {
 		organismName = info.name
 		divtip.transition()
 		const names = gene.names ? gene.names.join(',') : ''
-		divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}</br>${DA}</h>`)
+		divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}</br>${DA}</br>${gene.groups}</h>`)
 	})
 }
 
