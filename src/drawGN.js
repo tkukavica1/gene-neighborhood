@@ -5,12 +5,19 @@ const mist3 = require('node-mist3')
 const $ = require('jquery/dist/jquery.slim')
 const crypto = require('crypto')
 
+const HomologGroupTag = require('./HomologGroupTag')
+const HomologGroupEntry = require('./HomologGroupEntry')
+const ListOfHomologGroups = require('./ListOfHomologGroups')
+
+
 let mouseover = true
 let selected = false
 let colorValue = '006EBD'
 let currentEvalue = 100
-let groupZero = `${crypto.randomBytes(7).toString('hex')}#white`
-let currentGroup = groupZero
+const colorOfGroupZero = '#ffffff'
+const tagGroupZero = new HomologGroupTag(colorOfGroupZero)
+const entryGroupZero = new HomologGroupEntry(tagGroupZero)
+let currentGroupTag = tagGroupZero
 let ultimatelyMostRight = 0
 let ultimatelyMostLeft = 10^6
 
@@ -71,26 +78,25 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 	const GNboxLeft = boxSize.width - width
 
 	const refStart = op.gn[0].start
-
-	console.log(`refStart *** ${maxLenGeneCluster}`)
-	console.log(`${GNboxLeft} +++ ${GNboxRight}`)
-
 	const xDomRange = (op.refStrand === '+') ? [GNboxLeft, GNboxRight] : [GNboxRight, GNboxLeft]
-	
+
 	const xDom = d3
 		.scaleLinear()
 		.domain([0, maxLenGeneCluster])
 		.range(xDomRange)
 
-	for (let i = 0, N = op.gn.length; i < N; i++)
-		op.gn[i] = buildGroupCapabilities(op.gn[i])
+	for (let j = 0, N = op.gn.length; j < N; j++) {
+		const groupList = new ListOfHomologGroups()
+		op.gn[j].groups = groupList
+		op.gn[j].groups.addGroup(entryGroupZero)
+	}
 
 	const gs = svg.append('g')
 		.attr('class', 'geneCluster')
 		.attr('id', `GN${i}`)
 		.selectAll('.geneCluster')
 		.data(op.gn)
-	
+
 	gs.enter()
 		.append('path')
 		.attr('class', 'arrow')
@@ -107,7 +113,7 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 			return (gene.stable_id === op.ref) ? refArrowBorderWidth : arrowBorderWidth
 		})
 		.attr('fill', (gene) => {
-			return gene.getColorFill()
+			return gene.groups.getLastGroupColor()
 		})
 		.on('click', (gene) => {
 			toggleGeneSelection_(svg, gene)
@@ -139,11 +145,20 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 
 	d3.select('#evalueCutOff')
 		.on('input', function() {
+			if (selected && currentEvalue > this.value) {
+				svg.selectAll('.arrow')
+				.filter((gene) => {
+					return gene.groups.getLastGroupTag() === currentGroupTag
+				})
+				.each((gene) => {
+					gene.groups.popGroup()
+				})
+			}
 			currentEvalue = this.value
-			findHomologs(null, svg, currentEvalue)
+			markHomologs(null, svg, currentEvalue)
+			unMarkHomologs(svg, currentEvalue)
 		})
 }
-
 
 function makeArrows(gene, H, refStart, xDom, arrowBorderWidth) {
 	return arrow2line(
@@ -158,115 +173,78 @@ function makeArrows(gene, H, refStart, xDom, arrowBorderWidth) {
 	)
 }
 
-function makeNewGroup(color) {
-	return `${crypto.randomBytes(7).toString('hex')}#${color}`
-}
-
 function changeSelectionColor(svg, color) {
 	colorValue = color
-	const newCurrentGroup = `${currentGroup.split('#')[0]}#${color}`
 	if (selected) {
+		const selectedHash = selected.groups.getLastGroupHash()
 		svg.selectAll('.arrow')
 			.filter((gene) => {
-				return gene.stable_id === selected.stable_id
+				return gene.groups.getLastGroupHash() === selectedHash
 			})
 			.style('fill', color)
-		svg.selectAll('.arrow')
-		.filter((gene) => {
-			return gene.getLastGroup() === selected.getLastGroup() && gene.getLastGroup() !== groupZero
-		})
-		.style('fill', (gene) => {
-			gene.popGroup()
-			gene.addGroup(newCurrentGroup)
-			return color
-		})
-		currentGroup = newCurrentGroup
-		console.log(selected.groups)
+			.each((gene) => {
+				gene.groups.updateColorOfLastGroup(color)
+			})
 	}
 }
 
-function buildGroupCapabilities(gene) {
-	gene.groups = []
-	gene.addGroup = function(group) {
-		return this.groups.push(group)
-	}
-
-	gene.getLastGroup = function() {
-		return this.groups[this.groups.length - 1]
-	}
-
-	gene.popGroup = function() {
-		if (this.groups.length > 1)
-			this.groups.pop()
-		return
-	}
-
-	gene.getColorFill = function() {
-		return this.groups[this.groups.length - 1].split('#')[1]
-	}
-	gene.addGroup(currentGroup)
-
-	return gene
-}
-
-let listOfSelected = []
-let allBlastHitsThatMatter = []
-
-function findHomologs(queryGene, svg, value) {
-	console.log(listOfSelected)
+function markHomologs(queryGene, svg, value) {
 	if (selected) {
-		let selGene = queryGene || selected
+		const selGene = queryGene || selected
+		const blastHits = {}
 
-		for (let i = 0, M = listOfSelected.length; i < M; i++) {
-			if (listOfSelected[i].stable_id === selGene.stable_id)
-				listOfSelected.push(selGene)
+		for (let j = 0, N = selGene.blast.length; j < N; j++) {
+			const evalue = selGene.blast[j].hsps[0].evalue
+			const geneStableId = selGene.blast[j].def.split('|')[1]
+			const logEvalue = (evalue === 0) ? maxLogEvalue : -Math.log10(evalue)
+			if (logEvalue > value)
+				blastHits[geneStableId] = logEvalue
 		}
-
-		for (let i = 0, M = listOfSelected.length; i < M; i++) {
-			for (let j = 0, N = listOfSelected[i].blast.length; j < N; j++) {
-				const evalue = listOfSelected.blast[j].hsps[0].evalue
-				const logEvalue = (evalue === 0) ? maxLogEvalue : -Math.log10(evalue)
-				const candidateStableId = listOfSelected.blast[j].def.split('|')[1]
-				if (logEvalue > value && allBlastHitsThatMatter.indexOf(candidateStableId) === -1)
-					allBlastHitsThatMatter.push(candidateStableId)
-				else if (logEvalue < value && allBlastHitsThatMatter.indexOf(candidateStableId) !== -1)
-					allBlastHitsThatMatter = allBlastHitsThatMatter.splice(allBlastHitsThatMatter.indexOf(candidateStableId), 1)
-			}
-		}
-
 		svg.selectAll('.arrow')
 			.filter((gene) => {
-				if (allBlastHitsThatMatter.indexOf(gene.stable_id) !== -1 &&
-						gene.getLastGroup() !== currentGroup &&
-						listOfSelected.indexOf(gene.stable_id) === -1
-					)
-					return true
+				if (blastHits.hasOwnProperty(gene.stable_id))
+					console.log('we have it')
+				if (gene.groups.getLastGroupTag() === currentGroupTag)
+					console.log('but it is already in the group')
+				return (gene.groups.getLastGroupTag() !== currentGroupTag && blastHits.hasOwnProperty(gene.stable_id))
 			})
 			.style('fill', (gene) => {
-				gene.addGroup(currentGroup)
-				listOfSelected.push(gene.stable_id)
-				findHomologs(gene, svg, value)
+				let logEvalue = maxLogEvalue
+				if (!selGene.groups.getLastGroupLogEvalue())
+					logEvalue = blastHits[gene.stable_id]
+				else if (blastHits[gene.stable_id] > selGene.groups.getLastGroupLogEvalue())
+					logEvalue = selGene.groups.getLastGroupLogEvalue()
+				else
+					logEvalue = blastHits[gene.stable_id]
+				const newGroupEntry = new HomologGroupEntry(currentGroupTag, logEvalue)
+				newGroupEntry.parent = selGene.stable_id
+				gene.groups.addGroup(newGroupEntry)
 				console.log(`turning on: ${gene.stable_id}`)
-				return gene.getColorFill()
+				return gene.groups.getLastGroupColor()
 			})
+			.each((gene) => {
+				markHomologs(gene, svg, value)
+			})
+		displayGeneInfo_(selected, '#divTip')
+	}
+}
 
+function unMarkHomologs(svg, value) {
+	if (selected) {
 		svg.selectAll('.arrow')
 			.filter((gene) => {
-				return gene.getLastGroup() === currentGroup
+				return gene.groups.getLastGroupHash() === currentGroupTag.getHash()
 			})
 			.filter((gene) => {
-				return allBlastHitsThatMatter.indexOf(gene.stable_id) === -1
+				return gene.groups.getLastGroupLogEvalue() < value
+			})
+			.each((gene) => {
+				gene.groups.popGroup()
 			})
 			.style('fill', (gene) => {
-				console.log(`turning off: ${gene.stable_id}`)
-				console.log(gene)
-				gene.popGroup()
-				return gene.getColorFill()
+				console.log(`turning on: ${gene.stable_id}`)
+				return gene.groups.getLastGroupColor()
 			})
-	}
-	else {
-		listOfSelected = []
-		allBlastHitsThatMatter = []
 	}
 }
 
@@ -275,19 +253,28 @@ function toggleGeneSelection_(svg, gene) {
 	console.log(gene)
 	if (mouseover) {
 		selected = gene
-		if (gene.getLastGroup() === groupZero) {
-			currentGroup = makeNewGroup(colorValue)
-			selected.addGroup(currentGroup)
+		console.log(gene.groups.getLastGroupHash())
+		console.log(tagGroupZero.getHash())
+		if (gene.groups.getLastGroupHash() === tagGroupZero.getHash()) {
+			console.log('making new group')
+			const newGroup = new HomologGroupTag(colorValue)
+			console.log(newGroup)
+			currentGroupTag = newGroup
+			const newGroupEntry = new HomologGroupEntry(newGroup)
+			selected.groups.addGroup(newGroupEntry)
 		}
 		else {
-			currentGroup = gene.getLastGroup()
+			currentGroupTag = gene.groups.getLastGroupTag()
 		}
 		svg.selectAll('.arrow')
 			.filter((arrow) => {
 				return arrow.stable_id === gene.stable_id
 			})
 			.style('stroke', 'red')
-			.style('fill', selected.getColorFill())
+			.style('fill', () => {
+				console.log(selected.groups.getLastGroupColor())
+				return selected.groups.getLastGroupColor()
+			})
 		svg.selectAll('.arrow')
 			.filter((arrow) => {
 				return arrow.stable_id !== gene.stable_id
@@ -300,7 +287,8 @@ function toggleGeneSelection_(svg, gene) {
 			displayGeneInfo_(g, '#compTip')
 		})
 		mouseover = false
-		findHomologs(gene, svg, currentEvalue)
+		markHomologs(gene, svg, currentEvalue)
+		displayGeneInfo_(gene, '#divTip')
 	}
 	else {
 		selected = false
@@ -321,7 +309,7 @@ function toggleGeneSelection_(svg, gene) {
 			displayGeneInfo_(gene, '#divTip')
 		})
 		mouseover = true
-		currentGroup = groupZero
+		currentGroupTag = tagGroupZero
 	}
 	console.log('after')
 	console.log(gene)
@@ -342,7 +330,7 @@ function displayGeneInfo_(gene, tipId) {
 		organismName = info.name
 		divtip.transition()
 		const names = gene.names ? gene.names.join(',') : ''
-		divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}</br>${DA}</br>${gene.groups}</h>`)
+		divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}</br>${DA}</h>`)
 	})
 }
 
