@@ -38,12 +38,16 @@ body, html {
     z-index: 10;
 }
 
-#divColor, #divTip, #divSlider {
+#divColor, #divTip, #compTip, #divSlider {
     display: table-cell;
 }
 
 #divColor {
     vertical-align: middle
+}
+
+#divTip {
+    width: 500px;
 }
 
 #divSlider {
