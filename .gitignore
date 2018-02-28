@@ -1,0 +1,5 @@
+pick-a-color
+public
+node_modules
+coverage
+.nyc_output

@@ -1,0 +1,34 @@
+doctype html
+html(lang='en')
+	head
+		title GeneHood
+		link(href='node_modules/bootstrap/dist/css/bootstrap.min.css', rel='stylesheet')
+		link(href='node_modules/pick-a-color/build/1.2.3/css/pick-a-color-1.2.3.min.css', rel='stylesheet')
+		link(href='assets/style.css', rel="stylesheet", type='text/css')
+
+	body
+		script(src='public/app.js')
+		h1 GeneHood
+		label(class="btn btn-primary", id="fileFormLabel", for="jsonUpload") Upload JSON
+			input(type='file', id='jsonUpload', style='display: none', onChange='uploadData(this)')
+		.geneInfo
+			#divColor
+				input(type="text" value="006EBD" name="fillColor" class="pick-a-color form-control" onChange='changeColor(this.value)')
+			#divSlider
+				input(type='range', min='1', value='100', max='201', id='evalueCutOff')
+			#divTip
+			#compTip
+
+		.container#error
+			.alert-danger.error(style='position: absolute')
+				h3(style='white-space:pre;')
+					| This is not a geneHood file.
+					| Please try again.
+		#GN
+		script(src='node_modules/pick-a-color/build/dependencies/jquery-1.9.1.min.js')
+		script(src='node_modules/pick-a-color/build/dependencies/tinycolor-0.9.15.min.js')
+		script(src='node_modules/pick-a-color/build/1.2.3/js/pick-a-color-1.2.3.min.js')
+		script.
+			$('.pick-a-color').pickAColor({
+				showHexInput: false
+			})
