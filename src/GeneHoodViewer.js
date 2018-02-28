@@ -25,7 +25,7 @@ class GeneHoodViewer {
 			const dimensions = drawSpace.node().getBoundingClientRect()
 			const svg = drawSpace.append('svg')
 				.attr('width', dimensions.width)
-				.attr('height', dimensions.height)
+				.attr('height', dimensions.height * 10)
 				.style('border', '1px solid black')
 
 			const widthGN = 2/3 * dimensions.width
