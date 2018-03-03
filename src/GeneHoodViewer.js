@@ -24,7 +24,11 @@ class GeneHoodViewer {
 			const dimensions = drawSpace.node().getBoundingClientRect()
 			const svg = drawSpace.append('svg')
 				.attr('width', dimensions.width)
+<<<<<<< HEAD
 				.attr('height', dimensions.height * 2)
+=======
+				.attr('height', dimensions.height * 10)
+>>>>>>> dev
 				.style('border', '1px solid black')
 
 			const drawHere = svg.append('g')

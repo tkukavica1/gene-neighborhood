@@ -4,6 +4,7 @@
 const path = require('path')
 const ArgumentParser = require('argparse').ArgumentParser
 const fs = require('fs')
+const chalk = require('chalk')
 
 const GeneHoodEngine = require('../src/GeneHoodEngine')
 
@@ -51,7 +52,12 @@ parser.addArgument(
 )
 
 const args = parser.parseArgs()
+if (fs.existsSync(args.input)) {
+	const geneHood = new GeneHoodEngine(args.input, args.phylogeny, args.output)
+	console.log(GeneHoodEngine.log)
+	geneHood.run(args.downstream, args.upstream)
+}
+else {
+	console.error('Error: Input files does not exists.')
+}
 
-const geneHood = new GeneHoodEngine(args.input, args.phylogeny, args.output)
-console.log(GeneHoodEngine.log)
-geneHood.run(args.downstream, args.upstream)
