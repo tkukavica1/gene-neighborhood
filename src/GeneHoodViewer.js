@@ -24,37 +24,25 @@ class GeneHoodViewer {
 			const dimensions = drawSpace.node().getBoundingClientRect()
 			const svg = drawSpace.append('svg')
 				.attr('width', dimensions.width)
-<<<<<<< HEAD
-				.attr('height', dimensions.height * 2)
-=======
 				.attr('height', dimensions.height * 10)
->>>>>>> dev
 				.style('border', '1px solid black')
 
-			const drawHere = svg.append('g')
-				.attr('class', 'drawHere')
+			const geneHoodArea = svg.append('g')
+				.attr('class', 'geneHoodArea')
 				.attr('width', dimensions.width)
 				.attr('height', dimensions.height * 10)
-				.style('fill', 'white')
+				.attr('transform', `translate (${1/3 * dimensions.width}, 0)`)
+				//.style('fill', 'white')
 
 			const zoomActions = () => {
-				drawHere.attr('transform', (d) => {
-					console.log(d3.event)
-					console.log(drawHere.attr('transform'))
-					let currentTranslate = drawHere.attr('transform') ? parseInt(drawHere.attr('transform').match('( | -)[0-9]{1,10}')) : 0
-					currentTranslate = currentTranslate === NaN ? 0 : currentTranslate
-					console.log(currentTranslate)
-					return `translate(0, ${d3.event.sourceEvent.wheelDeltaY + currentTranslate})`
+				geneHoodArea.attr('transform', (d) => {
+					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
+					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
+					return `translate(${1/3 * dimensions.width}, ${d3.event.sourceEvent.wheelDeltaY + currentTranslate})`
 				})
 			}
 			const zoomHandler = zoom.on('zoom', zoomActions)
-
 			zoomHandler(svg)
-
-/* 			const zoomHandler = d3.zoom()
-				.on('zoom', drawHere.attr('transform', d3.currentEvent.transform))
-
-			zoomHandler(drawHere) */
 
 			const widthGN = 2/3 * dimensions.width
 
@@ -65,9 +53,9 @@ class GeneHoodViewer {
 					maxLenGeneCluster = opLen
 			})
 			this.data.forEach((geneCluster, i) => {
-				drawGN.drawGeneCluster(drawHere, geneCluster, i, maxLenGeneCluster, widthGN)
+				drawGN.drawGeneCluster(geneHoodArea, geneCluster, i, maxLenGeneCluster, widthGN)
 			})
-			drawGN.alignClusters(drawHere, this.data, dimensions.width - widthGN, widthGN)
+			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
 			// drawGN.reScaleClusters(svg, widthGN)
 		}
 		else {
