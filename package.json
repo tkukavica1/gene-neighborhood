@@ -41,7 +41,7 @@
     "figlet": "^1.2.0",
     "jquery": "^3.3.1",
     "multer": "^1.3.0",
-    "node-mist3": "^1.4.8",
+    "node-mist3": "github:biowonks/node-mist3#changing-api-hostname",
     "pick-a-color": "^1.2.3",
     "pug": "^2.0.0-rc.4",
     "pumpify": "^1.4.0",
