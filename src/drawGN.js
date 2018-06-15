@@ -317,15 +317,15 @@ function toggleGeneSelection_(svg, gene) {
 
 function displayGeneInfo_(gene, tipId) {
 	const divtip = d3.select(tipId)
-	let httpDefaultOptions = {
+	let httpsDefaultOptions = {
 		method: 'GET',
-		hostname: 'api.mistdb.com',
+		hostname: 'api.mistdb.caltech.edu',
 		headers: {},
 		agent: false
 	}
-	const genomes = new mist3.Genomes(httpDefaultOptions, 'error')
+	const genomes = new mist3.Genomes(httpsDefaultOptions, 'error')
 	let organismName = ''
-	const DA = `<img src="http://seqdepot.net/api/v1/aseqs/${gene.aseq_id}.png">`
+	const DA = "" // `<img src="httpss://api.mistdb.caltech.edu/v1/aseqs/${gene.aseq_id}.png">`
 	genomes.getGenomeInfoByVersion(gene.stable_id.split('-')[0]).then((info) => {
 		organismName = info.name
 		divtip.transition()
