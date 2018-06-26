@@ -13,7 +13,7 @@ app.get(('/'), (req, res) => {
 	res.render('index')
 })
 
-let port = process.env.PORT || 3000
+let port = process.env.PORT || 3001
 
 app.listen(port, () => {
 	console.log('Example app listening on port ' + port)

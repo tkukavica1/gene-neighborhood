@@ -317,20 +317,20 @@ function toggleGeneSelection_(svg, gene) {
 
 function displayGeneInfo_(gene, tipId) {
 	const divtip = d3.select(tipId)
-	let httpDefaultOptions = {
+	let httpsDefaultOptions = {
 		method: 'GET',
-		hostname: 'api.mistdb.com',
+		hostname: 'api.mistdb.caltech.edu',
 		headers: {},
 		agent: false
 	}
-	const genomes = new mist3.Genomes(httpDefaultOptions, 'error')
+	const genomes = new mist3.Genomes(httpsDefaultOptions, 'error')
 	let organismName = ''
-	const DA = `<img src="http://seqdepot.net/api/v1/aseqs/${gene.aseq_id}.png">`
+	// const DA = `<img src="https://api.mistdb.caltech.edu/v1/aseqs/${gene.aseq_id}.png">`
 	genomes.getGenomeInfoByVersion(gene.stable_id.split('-')[0]).then((info) => {
 		organismName = info.name
 		divtip.transition()
 		const names = gene.names ? gene.names.join(',') : ''
-		divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}</br>${DA}</h>`)
+		divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}</h>`)
 	})
 }
 
