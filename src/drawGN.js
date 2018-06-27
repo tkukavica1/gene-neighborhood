@@ -42,7 +42,7 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 	const arrowBorderWidth = 1
 	const refArrowBorderWidth = 3
 
-	const splitScreen = 2
+	// const splitScreen = 2
 	const boxSize = svg.node().getBoundingClientRect()
 	const GNboxRight = boxSize.width - padding
 	const GNboxLeft = boxSize.width - width
