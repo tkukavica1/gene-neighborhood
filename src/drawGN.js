@@ -34,36 +34,6 @@ const arrow2line = d3.line()
 		return d.y
 	})
 
-function makePathOfOneGene_(startX, len, index, strand, H, arrowBorderWidth) {
-	let arrow = []
-	const h = H/5
-	if (strand !== '-') {
-		arrow = [
-			{x: startX, y: index},
-			{x: startX + len * 8/11, y: index},
-			{x: startX + len * 8/11, y: index - h},
-			{x: startX + len, y: index + h*1.5},
-			{x: startX + len * 8/11, y: index + h * 4},
-			{x: startX + len * 8/11, y: index + h * 3},
-			{x: startX, y: index + h * 3},
-			{x: startX, y: index - arrowBorderWidth/2}
-		]
-	}
-	else {
-		arrow = [
-			{x: startX, y: index + h * 1.5},
-			{x: startX + len * 3/11, y: index - h},
-			{x: startX + len * 3/11, y: index},
-			{x: startX + len, y: index},
-			{x: startX + len, y: index + h * 3},
-			{x: startX + len * 3/11, y: index + h * 3},
-			{x: startX + len * 3/11, y: index + h * 4},
-			{x: startX, y: index + h * 1.5}
-		]
-	}
-	return arrow
-}
-
 function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 	const padding = 5
 	const paddingBetweenArrows = 30
@@ -94,6 +64,7 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 	const gs = svg.append('g')
 		.attr('class', 'geneCluster')
 		.attr('id', `GN${i}`)
+		.attr('transform', `translate (0, ${padding + i * (H + paddingBetweenArrows)})`)
 		.selectAll('.geneCluster')
 		.data(op.gn)
 
@@ -101,7 +72,6 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 		.append('path')
 		.attr('class', 'arrow')
 		.attr('d', function(gene) {
-			gene.y = (padding + H / 2) + i * (H + paddingBetweenArrows)
 			return makeArrows(gene, H, refStart, xDom, arrowBorderWidth)
 		})
 		.attr('stroke', (gene) => {
@@ -134,13 +104,13 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 		})
 		.attr('transform', function(gene) {
 			const dx = this.getComputedTextLength()
-			const y = gene.y + geneNameFontSize / 2 + H + dx/2 * Math.cos(geneNameInclination) + geneNameFontSize / 2
+			const y = geneNameFontSize + H + dx * Math.cos(geneNameInclination) + geneNameFontSize / 2
 			const x = xDom(gene.start - refStart) + (xDom(gene.stop) - xDom(gene.start)) / 2 - dx / 2
 			gene.textPos = {
 				x,
 				y
 			}
-			return `translate(${x} ${y}) rotate(${geneNameInclination}) `
+			return `translate(${x}, ${y}) rotate(${geneNameInclination}) `
 		})
 
 	d3.select('#evalueCutOff')
@@ -160,12 +130,41 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 		})
 }
 
+function makePathOfOneGene_(startX, len, strand, H, arrowBorderWidth) {
+	let arrow = []
+	const h = H/5
+	if (strand !== '-') {
+		arrow = [
+			{x: startX, y: (H/2)},
+			{x: startX + len * 8/11, y: (H/2)},
+			{x: startX + len * 8/11, y: (H/2) - h},
+			{x: startX + len, y: (H/2) + h*1.5},
+			{x: startX + len * 8/11, y: (H/2) + h * 4},
+			{x: startX + len * 8/11, y: (H/2) + h * 3},
+			{x: startX, y: (H/2) + h * 3},
+			{x: startX, y: (H/2) - arrowBorderWidth/2}
+		]
+	}
+	else {
+		arrow = [
+			{x: startX, y: (H/2) + h * 1.5},
+			{x: startX + len * 3/11, y: (H/2) - h},
+			{x: startX + len * 3/11, y: (H/2)},
+			{x: startX + len, y: (H/2)},
+			{x: startX + len, y: (H/2) + h * 3},
+			{x: startX + len * 3/11, y: (H/2) + h * 3},
+			{x: startX + len * 3/11, y: (H/2) + h * 4},
+			{x: startX, y: (H/2) + h * 1.5}
+		]
+	}
+	return arrow
+}
+
 function makeArrows(gene, H, refStart, xDom, arrowBorderWidth) {
 	return arrow2line(
 		makePathOfOneGene_(
 			xDom(gene.start - refStart),
 			xDom(gene.stop) - xDom(gene.start),
-			gene.y,
 			gene.strand,
 			H,
 			arrowBorderWidth
@@ -325,7 +324,7 @@ function displayGeneInfo_(gene, tipId) {
 	}
 	const genomes = new mist3.Genomes(httpsDefaultOptions, 'error')
 	let organismName = ''
-	// const DA = `<img src="https://api.mistdb.caltech.edu/v1/aseqs/${gene.aseq_id}.png">`
+	// const DA = "" // `<img src="httpss://api.mistdb.caltech.edu/v1/aseqs/${gene.aseq_id}.png">`
 	genomes.getGenomeInfoByVersion(gene.stable_id.split('-')[0]).then((info) => {
 		organismName = info.name
 		divtip.transition()

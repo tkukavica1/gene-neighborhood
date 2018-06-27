@@ -2,9 +2,8 @@
 
 const d3 = require('d3')
 const drawGN = require('./drawGN')
-
-
-
+require('d3-selection')
+const zoom = d3.zoom()
 
 module.exports =
 class GeneHoodViewer {
@@ -28,6 +27,23 @@ class GeneHoodViewer {
 				.attr('height', dimensions.height * 10)
 				.style('border', '1px solid black')
 
+			const geneHoodArea = svg.append('g')
+				.attr('class', 'geneHoodArea')
+				.attr('width', dimensions.width)
+				.attr('height', dimensions.height * 10)
+				.attr('transform', `translate (${1/3 * dimensions.width}, 0)`)
+				//.style('fill', 'white')
+
+			const zoomActions = () => {
+				geneHoodArea.attr('transform', (d) => {
+					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
+					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
+					return `translate(${1/3 * dimensions.width}, ${d3.event.sourceEvent.wheelDeltaY + currentTranslate})`
+				})
+			}
+			const zoomHandler = zoom.on('zoom', zoomActions)
+			zoomHandler(svg)
+
 			const widthGN = 2/3 * dimensions.width
 
 			let maxLenGeneCluster = 0
@@ -37,9 +53,9 @@ class GeneHoodViewer {
 					maxLenGeneCluster = opLen
 			})
 			this.data.forEach((geneCluster, i) => {
-				drawGN.drawGeneCluster(svg, geneCluster, i, maxLenGeneCluster, widthGN)
+				drawGN.drawGeneCluster(geneHoodArea, geneCluster, i, maxLenGeneCluster, widthGN)
 			})
-			drawGN.alignClusters(svg, this.data, dimensions.width - widthGN, widthGN)
+			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
 			// drawGN.reScaleClusters(svg, widthGN)
 		}
 		else {
