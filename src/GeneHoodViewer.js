@@ -4,6 +4,7 @@ const d3 = require('d3')
 const drawGN = require('./drawGN')
 require('d3-selection')
 const zoom = d3.zoom()
+let numClusters = 0 // Counts the number of gene clusters
 
 module.exports =
 class GeneHoodViewer {
@@ -46,9 +47,16 @@ class GeneHoodViewer {
 
 			const widthGN = 2/3 * dimensions.width
 
+			const treeBox = svg.append('div')
+				.attr('id', 'treeBox')
+				.attr('class', 'phyloTree')
+				.attr('width', dimensions.width)
+				.attr('height', dimensions.height * 10)
+
 			let maxLenGeneCluster = 0
 			this.data.forEach((geneCluster) => {
 				const opLen = geneCluster.gn[geneCluster.gn.length - 1].stop - geneCluster.gn[0].start
+				numClusters ++
 				if (maxLenGeneCluster < opLen)
 					maxLenGeneCluster = opLen
 			})
@@ -57,6 +65,7 @@ class GeneHoodViewer {
 			})
 			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
 			// drawGN.reScaleClusters(svg, widthGN)
+			drawGN.makeTree('A, A, A')
 		}
 		else {
 			console.log('Error')

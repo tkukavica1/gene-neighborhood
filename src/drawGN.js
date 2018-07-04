@@ -4,6 +4,7 @@ const d3 = require('d3')
 const mist3 = require('node-mist3')
 const $ = require('jquery/dist/jquery.slim')
 const crypto = require('crypto')
+const phylo = require('phylogician')
 
 const HomologGroupTag = require('./HomologGroupTag')
 const HomologGroupEntry = require('./HomologGroupEntry')
@@ -33,6 +34,10 @@ const arrow2line = d3.line()
 	.y(function(d) {
 		return d.y
 	})
+
+function makeTree(newick) {
+	phylo.makeTree(newick)
+}
 
 function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 	const padding = 5
@@ -395,5 +400,6 @@ module.exports = {
 	drawGeneCluster,
 	changeSelectionColor,
 	alignClusters,
-	reScaleClusters
+	reScaleClusters,
+	makeTree
 }
