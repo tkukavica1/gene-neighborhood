@@ -18,6 +18,13 @@ class GeneHoodViewer {
 		drawGN.changeSelectionColor(svg, value)
 	}
 
+	
+	/**
+	 * Creates the front-end display of the gene clusters and its corresponding
+	 * phylogenetic tree.
+	 * 
+	 * @param {any} dataString String of gene cluster data to be displayed.
+	 */
 	draw(dataString) {
 		if (this.upload_(dataString)) {
 			const drawSpace = d3.select(this.domGNid_)
@@ -27,6 +34,7 @@ class GeneHoodViewer {
 				.attr('id', 'treeBox')
 				.attr('class', 'phyloTree')
 				.attr('width', dimensions.width * 0.25)
+				.attr('height', dimensions.height * 10)
 
 			const svg = drawSpace.append('svg')
 				.attr('id', 'geneClusterBox')
@@ -35,10 +43,11 @@ class GeneHoodViewer {
 				.style('border', '1px solid black')
 
 			const geneHoodArea = svg.append('g')
+				.attr('id', 'geneHoodArea')
 				.attr('class', 'geneHoodArea')
 				.attr('width', dimensions.width)
 				.attr('height', dimensions.height * 10)
-				.attr('transform', `translate (${1/3 * dimensions.width}, 0)`)
+				.attr('transform', `translate (${1/3 * dimensions.width}, 20)`)
 				// .style('fill', 'white')
 
 			const zoomActions = () => {
@@ -90,7 +99,7 @@ class GeneHoodViewer {
 		if (this.checkData_(data)) {
 			this.data = data.data
 			this.phylo = data.phylo
-			console.log(`hey there, there are ${this.data.length} main entries`)
+			console.log(`There are ${this.data.length} main entries.`)
 			return true
 		}
 		return false

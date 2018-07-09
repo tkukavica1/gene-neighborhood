@@ -402,7 +402,9 @@ function reScaleClusters(svg, widthGN) {
  * gene clusters to be accommodated by the corresponding phylogenetic tree. The tree
  * will be built using this newick.
  * 
- * @param {any} numClusters Number of gene clusters to be accommodated in Newick.
+ * @param numClusters Number of gene clusters to be accommodated in Newick.
+ * 
+ * @return Appropriately built Newick string.
  */
 function buildNewickForClusters(numClusters) {
 	let myNewick = '('
