@@ -58,3 +58,11 @@ body, html {
 #evalueCutOff {
     transform: translate(0px, 50px) rotate(-90deg);
 }
+
+#treeBox {
+    position: absolute;
+}
+
+#geneClusterBox {
+    position: absolute;
+}

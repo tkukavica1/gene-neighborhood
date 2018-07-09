@@ -207,9 +207,9 @@ function markHomologs(queryGene, svg, value) {
 		svg.selectAll('.arrow')
 			.filter((gene) => {
 				if (blastHits.hasOwnProperty(gene.stable_id))
-					console.log('we have it')
+					// console.log('we have it')
 				if (gene.groups.getLastGroupTag() === currentGroupTag)
-					console.log('but it is already in the group')
+					// console.log('but it is already in the group')
 				return (gene.groups.getLastGroupTag() !== currentGroupTag && blastHits.hasOwnProperty(gene.stable_id))
 			})
 			.style('fill', (gene) => {
@@ -315,8 +315,8 @@ function toggleGeneSelection_(svg, gene) {
 		mouseover = true
 		currentGroupTag = tagGroupZero
 	}
-	console.log('after')
-	console.log(gene)
+	// console.log('after')
+	// console.log(gene)
 }
 
 function displayGeneInfo_(gene, tipId) {
@@ -396,10 +396,27 @@ function reScaleClusters(svg, widthGN) {
 		.attr('transform', `scale(${reScaleFactor} 0)`)
 }
 
+
+/**
+ * Helper function that builds a newick string of commas dependent on the number of
+ * gene clusters to be accommodated by the corresponding phylogenetic tree. The tree
+ * will be built using this newick.
+ * 
+ * @param {any} numClusters Number of gene clusters to be accommodated in Newick.
+ */
+function buildNewickForClusters(numClusters) {
+	let myNewick = '('
+	for (let i = 0; i < numClusters - 1; i++)
+		myNewick += ','
+	myNewick += ')'
+	return myNewick
+}
+
 module.exports = {
 	drawGeneCluster,
 	changeSelectionColor,
 	alignClusters,
 	reScaleClusters,
-	makeTree
+	makeTree,
+	buildNewickForClusters
 }

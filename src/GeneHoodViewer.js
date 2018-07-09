@@ -4,7 +4,6 @@ const d3 = require('d3')
 const drawGN = require('./drawGN')
 require('d3-selection')
 const zoom = d3.zoom()
-let numClusters = 0 // Counts the number of gene clusters
 
 module.exports =
 class GeneHoodViewer {
@@ -23,7 +22,14 @@ class GeneHoodViewer {
 		if (this.upload_(dataString)) {
 			const drawSpace = d3.select(this.domGNid_)
 			const dimensions = drawSpace.node().getBoundingClientRect()
+
+			const treeSpace = drawSpace.append('div')
+				.attr('id', 'treeBox')
+				.attr('class', 'phyloTree')
+				.attr('width', dimensions.width * 0.25)
+
 			const svg = drawSpace.append('svg')
+				.attr('id', 'geneClusterBox')
 				.attr('width', dimensions.width)
 				.attr('height', dimensions.height * 10)
 				.style('border', '1px solid black')
@@ -33,7 +39,7 @@ class GeneHoodViewer {
 				.attr('width', dimensions.width)
 				.attr('height', dimensions.height * 10)
 				.attr('transform', `translate (${1/3 * dimensions.width}, 0)`)
-				//.style('fill', 'white')
+				// .style('fill', 'white')
 
 			const zoomActions = () => {
 				geneHoodArea.attr('transform', (d) => {
@@ -47,16 +53,11 @@ class GeneHoodViewer {
 
 			const widthGN = 2/3 * dimensions.width
 
-			const treeBox = svg.append('div')
-				.attr('id', 'treeBox')
-				.attr('class', 'phyloTree')
-				.attr('width', dimensions.width)
-				.attr('height', dimensions.height * 10)
-
-			let maxLenGeneCluster = 0
+			let maxLenGeneCluster = 0 // Will determine the maximum gene cluster length
+			let numClusters = 0 // Counts the number of gene clusters
 			this.data.forEach((geneCluster) => {
 				const opLen = geneCluster.gn[geneCluster.gn.length - 1].stop - geneCluster.gn[0].start
-				numClusters ++
+				numClusters++
 				if (maxLenGeneCluster < opLen)
 					maxLenGeneCluster = opLen
 			})
@@ -65,7 +66,7 @@ class GeneHoodViewer {
 			})
 			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
 			// drawGN.reScaleClusters(svg, widthGN)
-			drawGN.makeTree('A, A, A')
+			drawGN.makeTree(drawGN.buildNewickForClusters(numClusters))
 		}
 		else {
 			console.log('Error')
