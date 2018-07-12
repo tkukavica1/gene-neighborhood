@@ -24,6 +24,8 @@ class GeneHoodViewer {
 	 * phylogenetic tree.
 	 * 
 	 * @param {any} dataString String of gene cluster data to be displayed.
+	 * 
+	 * @returns Translation of geneHoodArea if upload was successful, otherwise nothing.
 	 */
 	draw(dataString) {
 		if (this.upload_(dataString)) {
@@ -78,7 +80,7 @@ class GeneHoodViewer {
 			drawGN.makeTree(drawGN.buildNewickForClusters(numClusters))
 		}
 		else {
-			console.log('Error')
+			console.log('Error: Unable to display uploaded data.')
 		}
 	}
 

@@ -177,6 +177,14 @@ function makeArrows(gene, H, refStart, xDom, arrowBorderWidth) {
 	)
 }
 
+/**
+ * Changes the color of the currently selected arrow.
+ * 
+ * @param svg The svg in which the selected arrow is contained.
+ * @param color The color to change the selection to.
+ * 
+ * @returns True if getLastGroupHash() == selectedHash, false if not.
+ */
 function changeSelectionColor(svg, color) {
 	colorValue = color
 	if (selected) {
@@ -414,6 +422,7 @@ function buildNewickForClusters(numClusters) {
 	return myNewick
 }
 
+// Functions exported for use in other files
 module.exports = {
 	drawGeneCluster,
 	changeSelectionColor,
