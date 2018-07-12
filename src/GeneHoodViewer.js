@@ -18,7 +18,7 @@ class GeneHoodViewer {
 		drawGN.changeSelectionColor(svg, value)
 	}
 
-	
+
 	/**
 	 * Creates the front-end display of the gene clusters and its corresponding
 	 * phylogenetic tree.
@@ -31,27 +31,30 @@ class GeneHoodViewer {
 		if (this.upload_(dataString)) {
 			const drawSpace = d3.select(this.domGNid_)
 			const dimensions = drawSpace.node().getBoundingClientRect()
-
+		
+			// Create div for the phylogenetic tree.
 			const treeSpace = drawSpace.append('div')
 				.attr('id', 'treeBox')
 				.attr('class', 'phyloTree')
 				.attr('width', dimensions.width * 0.25)
 				.attr('height', dimensions.height * 10)
 
+			// Create svg for the gene clusters (should overlap with treeSpace div).
 			const svg = drawSpace.append('svg')
 				.attr('id', 'geneClusterBox')
 				.attr('width', dimensions.width)
 				.attr('height', dimensions.height * 10)
 				.style('border', '1px solid black')
 
+			// Create g within svg that allows for transforms of the gene clusters.
 			const geneHoodArea = svg.append('g')
 				.attr('id', 'geneHoodArea')
 				.attr('class', 'geneHoodArea')
 				.attr('width', dimensions.width)
 				.attr('height', dimensions.height * 10)
-				.attr('transform', `translate (${1/3 * dimensions.width}, 20)`)
-				// .style('fill', 'white')
+				.attr('transform', `translate (${1/3 * dimensions.width}, 20)`) // Prevent overlap of tree and gene clusters.
 
+			// Allow for scrolling up/down of gene clusters (occurs within geneHoodArea 'g', not 'svg').
 			const zoomActions = () => {
 				geneHoodArea.attr('transform', (d) => {
 					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
@@ -68,7 +71,7 @@ class GeneHoodViewer {
 			let numClusters = 0 // Counts the number of gene clusters
 			this.data.forEach((geneCluster) => {
 				const opLen = geneCluster.gn[geneCluster.gn.length - 1].stop - geneCluster.gn[0].start
-				numClusters++
+				numClusters++ // Counting total number of gene clusters so that Newick for phylogenetic tree can be created.
 				if (maxLenGeneCluster < opLen)
 					maxLenGeneCluster = opLen
 			})
@@ -77,7 +80,8 @@ class GeneHoodViewer {
 			})
 			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
 			// drawGN.reScaleClusters(svg, widthGN)
-			drawGN.makeTree(drawGN.buildNewickForClusters(numClusters))
+			drawGN.makeTree(drawGN.buildNewickForClusters(numClusters), 55)
+			drawGN.changeNodeSize(0)
 		}
 		else {
 			console.log('Error: Unable to display uploaded data.')

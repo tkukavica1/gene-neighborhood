@@ -35,8 +35,23 @@ const arrow2line = d3.line()
 		return d.y
 	})
 
-function makeTree(newick) {
-	phylo.makeTree(newick)
+/**
+ * Renders the phylogenetic tree visualization to the div 'treeBox'.
+ *
+ * @param newick The desired tree in Newick format.
+ * @param nodeYSpacing Desired distance between leaf nodes.
+ */
+function makeTree(newick, nodeYSpacing) {
+	phylo.makeCustomTree(newick, nodeYSpacing)
+}
+
+/**
+ * Changes the node size of the tree to the desired size using D3 and HTML IDs.
+ *
+ * @param size The desired node size.
+ */
+function changeNodeSize(size) {
+	phylo.changeNodeSize(size)
 }
 
 function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
@@ -429,5 +444,6 @@ module.exports = {
 	alignClusters,
 	reScaleClusters,
 	makeTree,
-	buildNewickForClusters
+	buildNewickForClusters,
+	changeNodeSize
 }
