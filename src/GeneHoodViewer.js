@@ -38,6 +38,7 @@ class GeneHoodViewer {
 				.attr('class', 'phyloTree')
 				.attr('width', dimensions.width * 0.25)
 				.attr('height', dimensions.height * 10)
+				.style('overflowY', 'hidden')
 
 			// Create svg for the gene clusters (should overlap with treeSpace div).
 			const svg = drawSpace.append('svg')
@@ -81,7 +82,7 @@ class GeneHoodViewer {
 			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
 			// drawGN.reScaleClusters(svg, widthGN)
 			drawGN.makeTree(drawGN.buildNewickForClusters(numClusters), 55)
-			drawGN.changeNodeSize(0)
+			drawGN.changeNodeSize(4)
 		}
 		else {
 			console.log('Error: Unable to display uploaded data.')
