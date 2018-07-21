@@ -31,20 +31,20 @@ class GeneHoodViewer {
 		if (this.upload_(dataString)) {
 			const drawSpace = d3.select(this.domGNid_)
 			const dimensions = drawSpace.node().getBoundingClientRect()
-		
+
 			// Create div for the phylogenetic tree.
 			const treeSpace = drawSpace.append('div')
 				.attr('id', 'treeBox')
 				.attr('class', 'phyloTree')
-				.attr('width', dimensions.width * 0.25)
-				.attr('height', dimensions.height * 10)
-				.style('overflowY', 'hidden')
+				.attr('width', dimensions.width * 0.25 + 'px')
+				.style('height', dimensions.height * 10 + 'px')
+				.style('overflow-y', 'hidden')
 
 			// Create svg for the gene clusters (should overlap with treeSpace div).
 			const svg = drawSpace.append('svg')
 				.attr('id', 'geneClusterBox')
-				.attr('width', dimensions.width)
-				.attr('height', dimensions.height * 10)
+				.attr('width', dimensions.width + 'px')
+				.attr('height', dimensions.height * 10 + 'px')
 				.style('border', '1px solid black')
 
 			// Create g within svg that allows for transforms of the gene clusters.
@@ -54,17 +54,6 @@ class GeneHoodViewer {
 				.attr('width', dimensions.width)
 				.attr('height', dimensions.height * 10)
 				.attr('transform', `translate (${1/3 * dimensions.width}, 20)`) // Prevent overlap of tree and gene clusters.
-
-			// Allow for scrolling up/down of gene clusters (occurs within geneHoodArea 'g', not 'svg').
-			const zoomActions = () => {
-				geneHoodArea.attr('transform', (d) => {
-					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
-					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
-					return `translate(${1/3 * dimensions.width}, ${d3.event.sourceEvent.wheelDeltaY + currentTranslate})`
-				})
-			}
-			const zoomHandler = zoom.on('zoom', zoomActions)
-			zoomHandler(svg)
 
 			const widthGN = 2/3 * dimensions.width
 
@@ -81,8 +70,28 @@ class GeneHoodViewer {
 			})
 			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
 			// drawGN.reScaleClusters(svg, widthGN)
-			drawGN.makeTree(drawGN.buildNewickForClusters(numClusters), 55)
-			drawGN.changeNodeSize(4)
+			const nodeSpacing = 55; const nodeSize = 4
+			drawGN.makeTree(drawGN.buildNewickForClusters(numClusters), nodeSpacing)
+			drawGN.changeNodeSize(nodeSize)
+
+			// const phyloTreeGElement = d3.select('#tnt_st_treeBox')
+
+			// Allow for scrolling up/down of phylogenetic tree & gene clusters (occurs within geneHoodArea 'g', not 'svg').
+
+			const zoomActions = () => {
+				geneHoodArea.attr('transform', (d) => {
+					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
+					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
+					return `translate(${1/3 * dimensions.width}, ${d3.event.sourceEvent.wheelDeltaY + currentTranslate})`
+				})
+				/* phyloTreeGElement.attr('transform', (d) => {
+					let currentTranslate = phyloTreeGElement.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
+					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
+					return `translate(${1/3 * dimensions.width}, ${d3.event.sourceEvent.wheelDeltaY + currentTranslate})`
+				}) */ // This isn't working yet.
+			}
+			const zoomHandler = zoom.on('zoom', zoomActions)
+			zoomHandler(svg)
 		}
 		else {
 			console.log('Error: Unable to display uploaded data.')

@@ -431,8 +431,12 @@ function reScaleClusters(svg, widthGN) {
  */
 function buildNewickForClusters(numClusters) {
 	let myNewick = '('
-	for (let i = 0; i < numClusters - 1; i++)
-		myNewick += ','
+	for (let i = 0; i < numClusters - 1; i++) {
+		/* if (i % 5 === 0)
+			myNewick += '(,)'
+		else */
+			myNewick += ','
+	}
 	myNewick += ')'
 	return myNewick
 }
