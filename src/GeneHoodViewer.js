@@ -65,14 +65,16 @@ class GeneHoodViewer {
 				if (maxLenGeneCluster < opLen)
 					maxLenGeneCluster = opLen
 			})
+
+			const nodeSpacing = 55; const nodeSize = 4
+			drawGN.makeTree(drawGN.buildNewickForClusters(numClusters), nodeSpacing)
+			drawGN.changeNodeSize(nodeSize)
+
 			this.data.forEach((geneCluster, i) => {
 				drawGN.drawGeneCluster(geneHoodArea, geneCluster, i, maxLenGeneCluster, widthGN)
 			})
 			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
 			// drawGN.reScaleClusters(svg, widthGN)
-			const nodeSpacing = 55; const nodeSize = 4
-			drawGN.makeTree(drawGN.buildNewickForClusters(numClusters), nodeSpacing)
-			drawGN.changeNodeSize(nodeSize)
 
 			// const phyloTreeGElement = d3.select('#tnt_st_treeBox')
 

@@ -54,6 +54,8 @@ function changeNodeSize(size) {
 	phylo.changeNodeSize(size)
 }
 
+let currentNodeIndex = 1;
+
 function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 	const padding = 5
 	const paddingBetweenArrows = 30
@@ -81,10 +83,18 @@ function drawGeneCluster(svg, op, i, maxLenGeneCluster, width) {
 		op.gn[j].groups.addGroup(entryGroupZero)
 	}
 
+	for (let k = currentNodeIndex + 1; k <= 1000000000; k++) {
+		if (d3.select('#tnt_tree_node_treeBox_' + k).attr('class') === 'leaf tnt_tree_node') {
+			currentNodeIndex = k
+			break
+		}
+	}
+
 	const gs = svg.append('g')
 		.attr('class', 'geneCluster')
 		.attr('id', `GN${i}`)
 		.attr('transform', `translate (0, ${padding + i * (H + paddingBetweenArrows)})`)
+		.attr('correspondingNodeID', 'tnt_tree_node_treeBox_' + currentNodeIndex)
 		.selectAll('.geneCluster')
 		.data(op.gn)
 
@@ -194,10 +204,10 @@ function makeArrows(gene, H, refStart, xDom, arrowBorderWidth) {
 
 /**
  * Changes the color of the currently selected arrow.
- * 
+ *
  * @param svg The svg in which the selected arrow is contained.
  * @param color The color to change the selection to.
- * 
+ *
  * @returns True if getLastGroupHash() == selectedHash, false if not.
  */
 function changeSelectionColor(svg, color) {
@@ -432,9 +442,9 @@ function reScaleClusters(svg, widthGN) {
 function buildNewickForClusters(numClusters) {
 	let myNewick = '('
 	for (let i = 0; i < numClusters - 1; i++) {
-		/* if (i % 5 === 0)
+		if (i % 5 === 0)
 			myNewick += '(,)'
-		else */
+		else
 			myNewick += ','
 	}
 	myNewick += ')'
