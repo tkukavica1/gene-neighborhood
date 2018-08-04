@@ -19,7 +19,11 @@ describe('GeneHood', function() {
 		const geneHood = new GeneHoodEngine(filePathIn)
 		return geneHood.run(14, 14).then(() => {
 			const data = fs.readFileSync(filePathOut)
+			const dataParsed = JSON.parse(data)
 			expect(data).to.not.eql('')
+			expect(dataParsed.blast).not.undefined
+			expect(dataParsed.phylo).not.undefined
+			expect(dataParsed.gnData).not.undefined
 		})
 	})
 	after(function() {
