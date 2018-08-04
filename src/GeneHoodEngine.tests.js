@@ -21,9 +21,10 @@ describe('GeneHood', function() {
 			const data = fs.readFileSync(filePathOut)
 			const dataParsed = JSON.parse(data)
 			expect(data).to.not.eql('')
-			expect(dataParsed.blast).not.undefined
+			expect(dataParsed.genes).not.undefined
+			expect(dataParsed.gns).not.undefined
+			expect(dataParsed.simLinks).not.undefined
 			expect(dataParsed.phylo).not.undefined
-			expect(dataParsed.gnData).not.undefined
 		})
 	})
 	after(function() {

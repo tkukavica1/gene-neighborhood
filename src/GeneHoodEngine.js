@@ -5,16 +5,17 @@ const childProcess = require('child_process')
 const bunyan = require('bunyan')
 const through2 = require('through2')
 
-const gh = require('./GeneHoodFromStableList')
-
 const Blastinutils = require('blastinutils')
-const blast = new Blastinutils()
+const commandTk = new Blastinutils.CommandsToolKit()
+
+const gh = require('./GeneHoodFromStableList')
+const GeneHoodObject = require('./GeneHoodObject')
 
 const dbFile = 'gndb'
 const outFile = 'blastp.genehood.dat'
 
 const makeDB_ = (fastaFile) => {
-	const command = blast.buildMakeDatabaseCommand(fastaFile, dbFile)
+	const command = commandTk.buildMakeDatabaseCommand(fastaFile, dbFile)
 	return new Promise((resolve, reject) => {
 		childProcess.exec(command, (error, stdout, stderr) => {
 			if (error) {
@@ -27,7 +28,7 @@ const makeDB_ = (fastaFile) => {
 }
 
 const runBlast_ = (fastaFile) => {
-	const command = blast.buildBlastpCommand(dbFile, fastaFile, outFile)
+	const command = commandTk.buildBlastpCommand(dbFile, fastaFile, outFile)
 	return new Promise((resolve, reject) => {
 		childProcess.exec(command, (error, stdout, stderr) => {
 			if (error) {
@@ -39,64 +40,23 @@ const runBlast_ = (fastaFile) => {
 	})
 }
 
-const parseBlastOutPut = (blastOutFile, geneFile) => {
+const parseBlastOutPut = (blastOutFile) => {
 	return new Promise((resolve, reject) => {
 		let buffer = ''
 		const blastResults = []
+		const nodesNlinks = new Blastinutils.NodesAndLinksStream()
 		fs.createReadStream(blastOutFile)
-			.pipe(through2((chunk, enc, next) => {
-				if (chunk) {
-					buffer += chunk.toString() || ''
-					const lines = buffer.split('\n')
-					buffer = lines.pop()
-					for (const line of lines) {
-						const blastEntry = blast.parseTabularData(line)
-						if (typeof blastEntry === 'object') {
-							blastResults.push(blastEntry)
-						}
-						else {
-							console.error(line)
-							this.emit('error', new Error ('BLAST data seems to be corrupt.'))
-						}
-					}
-				}
-				next()
-			}), (next) => {
-				const lines = buffer.split('\n')
-				for (const line of lines) {
-					const blastEntry = blast.parseTabularData(line)
-					if (typeof blastEntry === 'object') {
-						blastResults.push(blastEntry)
-					}
-					else {
-						console.error(line)
-						this.emit('error', new Error ('BLAST data seems to be corrupt.'))
-					}
-				}
-				next()
-			})
+			.pipe(nodesNlinks)
 			.on('finish', () => {
-				resolve(blastResults)
+				resolve({
+					nodes: nodesNlinks.nodes,
+					links: nodesNlinks.links
+				})
 			})
 			.on('error', (err) => {
 				throw err
 			})
 	})
-}
-
-
-const pack_ = (gnDataFile, phyloFile, blastResults, packedFile) => {
-	const packLog = bunyan.createLogger({name: 'packing'})
-	const gnData = JSON.parse(fs.readFileSync(gnDataFile))
-	const packed = {
-		gnData,
-		blast: blastResults,
-		phylo: null
-	}
-	if (phyloFile)
-		packed.phylo = fs.readFileSync(phyloFile).toString()
-	packLog.info('Saving results')
-	fs.writeFileSync(packedFile, JSON.stringify(packed, null, ' '))
 }
 
 module.exports =
@@ -130,9 +90,16 @@ class GeneHoodEngine {
 				this.log.info('Parsing BLAST data')
 				return parseBlastOutPut(outBlastFile, this.tempGeneFile_)
 			})
-			.then((blastResults) => {
+			.then((nodesNlinks) => {
 				this.log.info('Packing results')
-				pack_(this.tempGeneFile_, this.phyloFile_, blastResults, this.packedFile_)
+				const geneHoodObject = new GeneHoodObject()
+				const gnData = JSON.parse(fs.readFileSync(this.tempGeneFile_))
+				let phyloTree = null
+				if (this.phyloFile_)
+					phyloTree = fs.readFileSync(this.phyloFile_).toString()
+				geneHoodObject.build(gnData, nodesNlinks, phyloTree)
+				this.log.info('Saving results')
+				fs.writeFileSync(this.packedFile_, JSON.stringify(geneHoodObject.export()))
 			})
 			.catch((err) => {
 				throw err
