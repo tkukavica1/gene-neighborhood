@@ -99,7 +99,7 @@ class GeneHoodEngine {
 					phyloTree = fs.readFileSync(this.phyloFile_).toString()
 				geneHoodObject.build(gnData, nodesNlinks, phyloTree)
 				this.log.info('Saving results')
-				fs.writeFileSync(this.packedFile_, JSON.stringify(geneHoodObject.export()))
+				fs.writeFileSync(this.packedFile_, JSON.stringify(geneHoodObject.export(), null, ' '))
 			})
 			.catch((err) => {
 				throw err
