@@ -12,7 +12,7 @@ const filePathIn = path.resolve(testDataPath, 'flgB.stables.list')
 const filePathOut = path.resolve(testDataPath, 'geneHood.pack.json')
 
 
-describe.only('GeneHood', function() {
+describe('GeneHood', function() {
 	this.timeout(10000)
 	let dataParsed = {}
 	before(() => {
@@ -41,12 +41,17 @@ describe.only('GeneHood', function() {
 	it('should have phylo', function() {
 		expect(dataParsed).to.have.property('phylo')
 	})
-	it('should not have -1 in any gns', function() {
+	it('should not have -1 in any gns.cluster', function() {
 		dataParsed.gns.forEach((gn) => {
 			expect(gn.cluster).to.not.include(-1)
 		})
 	})
-/* 	after(function() {
+	it('should not have refStrand in gns', function() {
+		dataParsed.gns.forEach((gn) => {
+			expect(gn).to.have.property('refStrand')
+		})
+	})
+	after(function() {
 		let files = []
 		let configFilenamePattern = path.resolve(testDataPath, 'geneHood*json')
 		files = files.concat(glob.glob.sync(configFilenamePattern))
@@ -57,5 +62,5 @@ describe.only('GeneHood', function() {
 		files.forEach(function(file) {
 			fs.unlinkSync(file)
 		})
-	}) */
+	})
 })

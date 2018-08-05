@@ -14,16 +14,19 @@ class GeneHoodObject {
 		this.simLinks = nodesNlinks.links
 		nodesNlinks.nodes = this.reformatNodes_(nodesNlinks.nodes)
 		gnData.forEach((entry) => {
-			const gn = {
-				ref: nodesNlinks.nodes.indexOf(entry.ref),
-				refStrand: gnData.refStrand,
-				cluster: []
-			}
+			const cluster = []
 			entry.gn.forEach((geneEntry) => {
 				if (this.genes.indexOf(geneEntry) === -1)
 					this.genes.push(geneEntry)
-				gn.cluster.push(nodesNlinks.nodes.indexOf(geneEntry.stable_id))
+				if (nodesNlinks.nodes.indexOf(geneEntry.stable_id) === -1)
+					nodesNlinks.nodes.push(geneEntry.stable_id)
+				cluster.push(nodesNlinks.nodes.indexOf(geneEntry.stable_id))
 			})
+			const gn = {
+				ref: nodesNlinks.nodes.indexOf(entry.ref),
+				refStrand: entry.refStrand,
+				cluster
+			}
 			this.gns.push(gn)
 		})
 		this.reorderGenes_(nodesNlinks.nodes)
@@ -56,4 +59,9 @@ class GeneHoodObject {
 		})
 		return newNodes
 	}
+
+	getGene(i) {
+		return this.genes[i]
+	}
+
 }
