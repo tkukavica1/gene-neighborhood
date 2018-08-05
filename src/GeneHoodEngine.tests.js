@@ -51,6 +51,11 @@ describe('GeneHood', function() {
 			expect(gn).to.have.property('refStrand')
 		})
 	})
+	it('should not have span in gns', function() {
+		dataParsed.gns.forEach((gn) => {
+			expect(gn).to.have.property('span')
+		})
+	})
 	after(function() {
 		let files = []
 		let configFilenamePattern = path.resolve(testDataPath, 'geneHood*json')

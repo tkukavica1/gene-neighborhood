@@ -9,12 +9,36 @@ class GeneHoodObject {
 		this.phylo = data.phylo
 	}
 
+	getSpan(entry) {
+		const span = {
+			left: 0,
+			right: 0,
+			center: 0
+		}
+		const refGene = entry.gn.filter((items) => {
+			return items.stable_id === entry.ref
+		})[0]
+		span.center = refGene.start
+		if (entry.refStrand === '+') {
+			span.center = refGene.start
+			span.left = refGene.start - entry.gn[0].start
+			span.right = entry.gn[entry.gn.length - 1].stop - refGene.start
+		}
+		else {
+			span.center = refGene.stop
+			span.left = entry.gn[entry.gn.length - 1].stop - refGene.stop
+			span.right = refGene.stop - entry.gn[0].start
+		}
+		return span
+	}
+
 	build(gnData, nodesNlinks, phyloTree) {
 		this.phylo = phyloTree
 		this.simLinks = nodesNlinks.links
 		nodesNlinks.nodes = this.reformatNodes_(nodesNlinks.nodes)
 		gnData.forEach((entry) => {
 			const cluster = []
+			const span = this.getSpan(entry)
 			entry.gn.forEach((geneEntry) => {
 				if (this.genes.indexOf(geneEntry) === -1)
 					this.genes.push(geneEntry)
@@ -25,7 +49,8 @@ class GeneHoodObject {
 			const gn = {
 				ref: nodesNlinks.nodes.indexOf(entry.ref),
 				refStrand: entry.refStrand,
-				cluster
+				cluster,
+				span
 			}
 			this.gns.push(gn)
 		})
