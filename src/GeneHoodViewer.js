@@ -7,6 +7,7 @@ require('d3-selection')
 const zoom = d3.zoom()
 
 const GeneHoodObject = require('./GeneHoodObject')
+const HomologLogic = require('./HomologLogic')
 
 module.exports =
 class GeneHoodViewer {
@@ -18,7 +19,7 @@ class GeneHoodViewer {
 
 	changeColor(value) {
 		const svg = d3.select(this.domGNid_).select('svg')
-		drawGN.changeSelectionColor(svg, value)
+		this.drawGN.changeSelectionColor(value)
 	}
 
 	draw(dataString) {
@@ -37,7 +38,7 @@ class GeneHoodViewer {
 				.attr('transform', `translate (${1/3 * dimensions.width}, 0)`)
 				//.style('fill', 'white')
 
-/* 			const zoomActions = () => {
+ 			const zoomActions = () => {
 				geneHoodArea.attr('transform', (d) => {
 					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
 					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
@@ -45,13 +46,16 @@ class GeneHoodViewer {
 				})
 			}
 			const zoomHandler = zoom.on('zoom', zoomActions)
-			zoomHandler(svg) */
+			zoomHandler(svg)
 
 			const widthGN = 2/3 * dimensions.width
 
-			const drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
-			drawGN.init()
-			drawGN.drawAllClusters()
+			const homologLogic = new HomologLogic(this.geneHoodObject)
+			const groupInit = homologLogic.init()
+
+			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
+			this.drawGN.init(groupInit)
+			this.drawGN.drawAllClusters()
 		}
 		else {
 			console.log('Error')
@@ -74,7 +78,7 @@ class GeneHoodViewer {
 		}
 		if (this.checkData_(data)) {
 			this.geneHoodObject = new GeneHoodObject(data)
-			console.log(`hey there, there are ${this.geneHoodObject.gns.length} neighborhoods`)
+			console.log(`hey there, there are ${this.geneHoodObject.gns.length} neighborhoods and ${this.geneHoodObject.genes.length}`)
 			return true
 		}
 		return false

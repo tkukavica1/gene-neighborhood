@@ -3,6 +3,9 @@
 const d3 = require('d3')
 const mist3 = require('node-mist3')
 
+const HomologGroupTag = require('./HomologGroupTag')
+const HomologGroupEntry = require('./HomologGroupEntry')
+
 const arrow2line = d3.line()
 	.x(function(d) {
 		return d.x
@@ -33,9 +36,17 @@ class DrawGN {
 			headers: {},
 			agent: false
 		}
+		this.interactiveParams = {
+			mouseover: true,
+			selected: false,
+			currentEvalue: 100,
+			maxLogEvalue: 200,
+			colorValue: '006EBD',
+			searched: new Set([])
+		}
 	}
 
-	init() {
+	init(groupInit) {
 		this.leftMost = 0
 		this.rightMost = 0
 		this.geneHoodObject.gns.forEach((gn) => {
@@ -44,14 +55,37 @@ class DrawGN {
 			if (gn.span.right > this.rightMost)
 				this.rightMost = gn.span.right
 		})
-		console.log(this.leftMost)
-		console.log(this.rightMost)
 		this.xDom = d3.scaleLinear().domain([0, this.leftMost + this.rightMost])
+		this.interactiveParams.tagGroupZero = groupInit.tagGroupZero
+		this.interactiveParams.entryGroupZero = groupInit.entryGroupZero
+		this.interactiveParams.currentGroupTag = this.interactiveParams.tagGroupZero
+
+		const self = this
+		d3.select('#evalueCutOff')
+		.on('input', function() {
+			if (self.interactiveParams.selected && self.interactiveParams.currentEvalue > this.value) {
+				self.svg.selectAll('.arrow')
+					.filter((geneIndex) => {
+						const gene = self.geneHoodObject.getGene(geneIndex)
+						return gene.groups.getLastGroupTag() === self.interactiveParams.currentGroupTag
+					})
+					.each((geneIndex) => {
+						const gene = self.geneHoodObject.getGene(geneIndex)
+						gene.groups.popGroup()
+					})
+			}
+			self.interactiveParams.currentEvalue = this.value
+			self.interactiveParams.searched.clear()
+			const t0 = performance.now()
+			self.markHomologs(null)
+			console.log(`markHomologs took ${performance.now() - t0} ms`)
+			self.unMarkHomologs()
+		})
 	}
 
 	drawAllClusters() {
 		this.geneHoodObject.gns.forEach((geneCluster, i) => {
-			console.log('--')
+			// console.log(this.geneHoodObject.getGene(geneCluster.ref))
 			this.drawClusters(geneCluster, i)
 		})
 	}
@@ -85,7 +119,6 @@ class DrawGN {
 				return 'lightgrey'
 			})
 			.attr('stroke-width', (geneIndex) => {
-				const gene = self.geneHoodObject.getGene(geneIndex)
 				return (geneIndex === geneCluster.ref) ? self.params.refArrowBorderWidth : self.params.arrowBorderWidth
 			})
 			.attr('fill', (geneIndex) => {
@@ -93,10 +126,13 @@ class DrawGN {
 				// const gene = self.geneHoodObject.getGene(geneIndex)
 				// return gene.groups.getLastGroupColor()
 			})
-/* 				.on('click', (gene) => {
-				toggleGeneSelection_(svg, gene)
+			.on('click', (geneIndex) => {
+				const t0 = performance.now()
+				self.interactiveParams.searched.clear()
+				this.toggleGeneSelection_(geneIndex)
+				console.log(`Toggle took ${performance.now() - t0} ms`)
+
 			})
-			*/
 			.on('mouseover', (geneIndex) => {
 				this.displayGeneInfo_(geneIndex, '#divTip')
 			})
@@ -118,20 +154,184 @@ class DrawGN {
 				if (gene.names)
 					names = gene.names.join(', ')
 				const dx = this.getComputedTextLength(names)
-				// console.log(dx)
+				// // console.log(dx)
 				const y = self.geneNameFontSize + self.params.arrowThickness + dx * Math.cos(self.geneNameInclination) + self.geneNameFontSize / 2
 				let x = self.xDom(gene.start - geneCluster.span.center) + (self.xDom(gene.stop) - self.xDom(gene.start)) / 2 - dx / 2
 				if (geneCluster.refStrand === '+')
 					x += self.width / 2
 				else
 					x -= self.width / 2 
-				// console.log(self.xDom(gene.start - geneCluster.span.center))
+				// // console.log(self.xDom(gene.start - geneCluster.span.center))
 				gene.textPos = {
 					x,
 					y
 				}
 				return `translate(${x}, ${y}) rotate(${self.geneNameInclination}) `
 			})
+	}
+
+	toggleGeneSelection_(geneIndex) {
+		const t0 = performance.now()
+		const gene = this.geneHoodObject.getGene(geneIndex)
+		const t1 = performance.now()
+		console.log(`ToggleGene :: It took ${t1 - t0} ms to find a gene`)
+		if (this.interactiveParams.mouseover) {
+			this.interactiveParams.selected = geneIndex
+			// console.log(`group ${gene.groups.getLastGroupHash()}`)
+
+			if (gene.groups.getLastGroupHash() === this.interactiveParams.tagGroupZero.getHash()) {
+				// console.log('making new group')
+				const newGroup = new HomologGroupTag(this.interactiveParams.colorValue)
+				// console.log(newGroup)
+				this.interactiveParams.currentGroupTag = newGroup
+				const newGroupEntry = new HomologGroupEntry(newGroup)
+				gene.groups.addGroup(newGroupEntry)
+			}
+			else {
+				this.interactiveParams.currentGroupTag = gene.groups.getLastGroupTag()
+			}
+			const t2 = performance.now()
+			console.log(`ToggleGene :: It took ${t2 - t1} ms to create a group`)
+			this.svg.selectAll('.arrow')
+				.filter((arrowIndex) => {
+					const arrow = this.geneHoodObject.getGene(arrowIndex)
+					return arrow.stable_id === gene.stable_id
+				})
+				.style('stroke', 'red')
+				.style('fill', () => {
+					// console.log(gene.groups.getLastGroupColor())
+					return gene.groups.getLastGroupColor()
+				})
+			const t3 = performance.now()
+			console.log(`ToggleGene :: It took ${t3 - t2} ms to color red border of selected gene`)
+			this.svg.selectAll('.arrow')
+				.filter((arrowIndex) => {
+					const arrow = this.geneHoodObject.getGene(arrowIndex)
+					return arrow.stable_id !== gene.stable_id
+				})
+				.on('click', () => {
+					return false
+				})
+			const t4 = performance.now()
+			console.log(`ToggleGene :: It took ${t4 - t3} ms to mute click of other genes`)
+			this.svg.selectAll('.arrow').on('mouseover', (g) => {
+				d3.select('#compTip').style('display', 'table-cell')
+				this.displayGeneInfo_(g, '#compTip')
+			})
+			const t5 = performance.now()
+			console.log(`ToggleGene :: It took ${t5 - t4} ms to make new mouse over in all genes`)
+			this.interactiveParams.mouseover = false
+			this.markHomologs(geneIndex)
+			const t6 = performance.now()
+			console.log(`ToggleGene :: It took ${t6 - t5} ms to run markHomologs`)
+			this.displayGeneInfo_(geneIndex, '#divTip')
+			console.log(`ToggleGene :: total time - ${t6 - t0} ms`)
+		}
+		else {
+			this.interactiveParams.selected = false
+			this.svg.selectAll('.arrow')
+				.filter((arrowIndex) => {
+					const arrow = this.geneHoodObject.getGene(arrowIndex)
+					return arrow.stable_id === gene.stable_id
+				})
+				.style('stroke', 'black')
+			this.svg.selectAll('.arrow')
+				.filter((arrowIndex) => {
+					const arrow = this.geneHoodObject.getGene(arrowIndex)
+					return arrow.stable_id !== gene.stable_id
+				})
+				.on('click', (arrowIndex) => {
+					this.toggleGeneSelection_(arrowIndex)
+				})
+			this.svg.selectAll('.arrow').on('mouseover', (arrowIndex) => {
+				d3.select('#compTip').style('display', 'none')
+				this.displayGeneInfo_(arrowIndex, '#divTip')
+			})
+			this.interactiveParams.mouseover = true
+			this.interactiveParams.currentGroupTag = this.interactiveParams.tagGroupZero
+		}
+	}
+
+	markHomologs(queryGeneIndex) {
+		if (this.interactiveParams.selected) {
+			this.interactiveParams.searched.add(queryGeneIndex)
+			const t0 = performance.now()
+			const geneIndex = queryGeneIndex || this.interactiveParams.selected
+			const self = this
+			this.svg.selectAll('.arrow')
+				.filter((arrowIndex) => {
+					const arrow = self.geneHoodObject.getGene(arrowIndex)
+					if (arrow.blastHits.hasOwnProperty(arrowIndex))
+						return arrow.blastHits[geneIndex] >= self.interactiveParams.currentEvalue && arrow.groups.getLastGroupTag() !== self.interactiveParams.currentGroupTag
+					return false
+				})
+				.each((arrowIndex) => {
+					const arrow = self.geneHoodObject.getGene(arrowIndex)
+					const selGene = self.geneHoodObject.getGene(geneIndex)
+					let logEvalue = arrow.blastHits[arrowIndex]
+					if (selGene.groups.getLastGroupLogEvalue()) {
+						if (selGene.groups.getLastGroupLogEvalue() < logEvalue)
+							logEvalue = selGene.groups.getLastGroupLogEvalue()
+					}
+					// console.log(logEvalue)
+					const newGroupEntry = new HomologGroupEntry(self.interactiveParams.currentGroupTag, logEvalue)
+					newGroupEntry.parent = geneIndex
+					arrow.groups.addGroup(newGroupEntry)
+				})
+				.style('fill', (arrowIndex) => {
+					const arrow = self.geneHoodObject.getGene(arrowIndex)
+					return arrow.groups.getLastGroupColor()
+				})
+				.each((arrowIndex) => {
+					if (!self.interactiveParams.searched.has(arrowIndex)) {
+						this.markHomologs(arrowIndex)
+					}
+				})
+		}
+		// console.log(this.interactiveParams.selected)
+	}
+
+	unMarkHomologs() {
+		const self = this
+		if (self.interactiveParams.selected) {
+			self.svg.selectAll('.arrow')
+				.filter((arrowIndex) => {
+					const arrow = self.geneHoodObject.getGene(arrowIndex)
+					return arrow.groups.getLastGroupHash() === self.interactiveParams.currentGroupTag.getHash()
+				})
+				.filter((arrowIndex) => {
+					const arrow = self.geneHoodObject.getGene(arrowIndex)
+					// console.log(`part of the group ${self.interactiveParams.currentGroupTag.getHash()}: ${arrowIndex} - ${arrow.groups.getLastGroupLogEvalue()} vs. ${self.interactiveParams.currentEvalue}`)
+					return arrow.groups.getLastGroupLogEvalue() < self.interactiveParams.currentEvalue || self.interactiveParams.currentEvalue === self.interactiveParams.maxLogEvalue
+				})
+				.each((arrowIndex) => {
+					const arrow = self.geneHoodObject.getGene(arrowIndex)
+					arrow.groups.popGroup()
+				})
+				.style('fill', (arrowIndex) => {
+					const arrow = self.geneHoodObject.getGene(arrowIndex)
+					// console.log(`turning off: ${arrowIndex}`)
+					return arrow.groups.getLastGroupColor()
+				})
+		}
+	}
+
+	changeSelectionColor(color) {
+		this.interactiveParams.colorValue = color
+		if (this.interactiveParams.selected) {
+			const gene = this.geneHoodObject.getGene(this.interactiveParams.selected)
+			const selectedHash = gene.groups.getLastGroupHash()
+			this.svg.selectAll('.arrow')
+				.filter((geneIndex) => {
+					const arrow = this.geneHoodObject.getGene(geneIndex)
+					return arrow.groups.getLastGroupHash() === selectedHash
+				})
+				.style('fill', color)
+				.each((geneIndex) => {
+					const arrow = this.geneHoodObject.getGene(geneIndex)
+					arrow.groups.updateColorOfLastGroup(color)
+				})
+		}
 	}
 
 	displayGeneInfo_(geneIndex, tipId) {
@@ -163,7 +363,7 @@ class DrawGN {
 			this.params.arrowThickness,
 			this.params.arrowBorderWidth
 		)
-		// console.log(path)
+		// // console.log(path)
 		return arrow2line(path)
 	}
 
