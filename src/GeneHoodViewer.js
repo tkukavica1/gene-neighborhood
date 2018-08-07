@@ -1,9 +1,13 @@
 'use strict'
 
 const d3 = require('d3')
-const drawGN = require('./drawGN')
+//const drawGN = require('./drawGN')
+const DrawGN = require('./DrawGN')
 require('d3-selection')
 const zoom = d3.zoom()
+
+const GeneHoodObject = require('./GeneHoodObject')
+const HomologLogic = require('./HomologLogic')
 
 module.exports =
 class GeneHoodViewer {
@@ -15,7 +19,7 @@ class GeneHoodViewer {
 
 	changeColor(value) {
 		const svg = d3.select(this.domGNid_).select('svg')
-		drawGN.changeSelectionColor(svg, value)
+		this.drawGN.changeSelectionColor(value)
 	}
 
 	draw(dataString) {
@@ -34,7 +38,7 @@ class GeneHoodViewer {
 				.attr('transform', `translate (${1/3 * dimensions.width}, 0)`)
 				//.style('fill', 'white')
 
-			const zoomActions = () => {
+ 			const zoomActions = () => {
 				geneHoodArea.attr('transform', (d) => {
 					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
 					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
@@ -46,17 +50,12 @@ class GeneHoodViewer {
 
 			const widthGN = 2/3 * dimensions.width
 
-			let maxLenGeneCluster = 0
-			this.data.forEach((geneCluster) => {
-				const opLen = geneCluster.gn[geneCluster.gn.length - 1].stop - geneCluster.gn[0].start
-				if (maxLenGeneCluster < opLen)
-					maxLenGeneCluster = opLen
-			})
-			this.data.forEach((geneCluster, i) => {
-				drawGN.drawGeneCluster(geneHoodArea, geneCluster, i, maxLenGeneCluster, widthGN)
-			})
-			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
-			// drawGN.reScaleClusters(svg, widthGN)
+			const homologLogic = new HomologLogic(this.geneHoodObject)
+			const groupInit = homologLogic.init()
+
+			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
+			this.drawGN.init(groupInit)
+			this.drawGN.drawAllClusters()
 		}
 		else {
 			console.log('Error')
@@ -78,16 +77,15 @@ class GeneHoodViewer {
 			return false
 		}
 		if (this.checkData_(data)) {
-			this.data = data.data
-			this.phylo = data.phylo
-			console.log(`hey there, there are ${this.data.length} main entries`)
+			this.geneHoodObject = new GeneHoodObject(data)
+			console.log(`hey there, there are ${this.geneHoodObject.gns.length} neighborhoods and ${this.geneHoodObject.genes.length}`)
 			return true
 		}
 		return false
 	}
 
 	checkData_(data) {
-		if (!data.hasOwnProperty('data') || !data.hasOwnProperty('phylo')) {
+		if (!data.hasOwnProperty('genes') || !data.hasOwnProperty('gns') || !data.hasOwnProperty('phylo') || !data.hasOwnProperty('simLinks')) {
 			this.emitError_()
 			return false
 		}
