@@ -38,7 +38,7 @@ class GeneHoodViewer {
 				.attr('transform', `translate (${1/3 * dimensions.width}, 0)`)
 				//.style('fill', 'white')
 
- 			const zoomActions = () => {
+			const zoomActions = () => {
 				geneHoodArea.attr('transform', (d) => {
 					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
 					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
