@@ -56,6 +56,8 @@ class GeneHoodViewer {
 			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
 			this.drawGN.init(groupInit)
 			this.drawGN.drawAllClusters()
+
+			this.drawGN.drawTree()
 		}
 		else {
 			console.log('Error')

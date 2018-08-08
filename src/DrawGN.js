@@ -170,6 +170,16 @@ class DrawGN {
 			})
 	}
 
+	drawTree() {
+		// Create div for the phylogenetic tree.
+		const treeSpace = drawSpace.append('div')
+		.attr('id', 'treeBox')
+		.attr('class', 'phyloTree')
+		.attr('width', dimensions.width * 0.25 + 'px')
+		.style('height', dimensions.height * 10 + 'px')
+		.style('overflow-y', 'hidden')
+	}
+
 	toggleGeneSelection_(geneIndex) {
 		const t0 = performance.now()
 		const gene = this.geneHoodObject.getGene(geneIndex)
