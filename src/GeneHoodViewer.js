@@ -26,6 +26,15 @@ class GeneHoodViewer {
 		if (this.upload_(dataString)) {
 			const drawSpace = d3.select(this.domGNid_)
 			const dimensions = drawSpace.node().getBoundingClientRect()
+
+			// Create div for the phylogenetic tree.
+			const treeSpace = drawSpace.append('div')
+				.attr('id', 'treeBox')
+				.attr('class', 'phyloTree')
+				.attr('width', dimensions.width * 0.25 + 'px')
+				.style('height', dimensions.height * 10 + 'px')
+				.style('overflow-y', 'hidden')
+
 			const svg = drawSpace.append('svg')
 				.attr('width', dimensions.width)
 				.attr('height', dimensions.height * 10)
@@ -35,7 +44,7 @@ class GeneHoodViewer {
 				.attr('class', 'geneHoodArea')
 				.attr('width', dimensions.width)
 				.attr('height', dimensions.height * 10)
-				.attr('transform', `translate (${1/3 * dimensions.width}, 0)`)
+				.attr('transform', `translate (${1/3 * dimensions.width}, 20)`)
 				//.style('fill', 'white')
 
 			const zoomActions = () => {
@@ -55,9 +64,8 @@ class GeneHoodViewer {
 
 			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
 			this.drawGN.init(groupInit)
+			this.drawGN.drawTree(drawSpace, dimensions)
 			this.drawGN.drawAllClusters()
-
-			this.drawGN.drawTree()
 		}
 		else {
 			console.log('Error')

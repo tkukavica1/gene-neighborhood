@@ -2,6 +2,7 @@
 
 const d3 = require('d3')
 const mist3 = require('node-mist3')
+const phylogician = require('phylogician')
 
 const HomologGroupTag = require('./HomologGroupTag')
 const HomologGroupEntry = require('./HomologGroupEntry')
@@ -170,14 +171,9 @@ class DrawGN {
 			})
 	}
 
-	drawTree() {
-		// Create div for the phylogenetic tree.
-		const treeSpace = drawSpace.append('div')
-		.attr('id', 'treeBox')
-		.attr('class', 'phyloTree')
-		.attr('width', dimensions.width * 0.25 + 'px')
-		.style('height', dimensions.height * 10 + 'px')
-		.style('overflow-y', 'hidden')
+	drawTree(drawSpace, dimensions) {
+		const newick = this.geneHoodObject.phylo
+		phylogician.makeCustomTree(newick, 55)
 	}
 
 	toggleGeneSelection_(geneIndex) {
@@ -407,4 +403,25 @@ class DrawGN {
 		return arrow
 	}
 
+}
+
+/**
+ * Temporary helper function that builds a newick string of commas dependent on the number of
+ * gene clusters to be accommodated by the corresponding phylogenetic tree. The tree
+ * will be built using this newick.
+ *
+ * @param numClusters Number of gene clusters to be accommodated in Newick.
+ *
+ * @return Appropriately built Newick string.
+ */
+function buildNewickForClusters(numClusters) {
+	let myNewick = '('
+	for (let i = 0; i < numClusters - 1; i++) {
+		if (i % 5 === 0)
+			myNewick += '(,)'
+		else
+			myNewick += ','
+	}
+	myNewick += ')'
+	return myNewick
 }
