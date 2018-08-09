@@ -172,8 +172,9 @@ class DrawGN {
 	}
 
 	drawTree(drawSpace, dimensions) {
-		const newick = this.geneHoodObject.phylo
-		phylogician.makeCustomTree(newick, 55)
+		const nodeYSpacing = 55
+		const newick = buildLocusNewick(this.geneHoodObject.phylo)
+		phylogician.makeCustomTree(newick, nodeYSpacing)
 	}
 
 	toggleGeneSelection_(geneIndex) {
@@ -406,22 +407,26 @@ class DrawGN {
 }
 
 /**
- * Temporary helper function that builds a newick string of commas dependent on the number of
- * gene clusters to be accommodated by the corresponding phylogenetic tree. The tree
- * will be built using this newick.
- *
- * @param numClusters Number of gene clusters to be accommodated in Newick.
- *
- * @return Appropriately built Newick string.
+ * 
+ * 
+ * @param {any} newick 
  */
-function buildNewickForClusters(numClusters) {
-	let myNewick = '('
-	for (let i = 0; i < numClusters - 1; i++) {
-		if (i % 5 === 0)
-			myNewick += '(,)'
-		else
-			myNewick += ','
+function buildLocusNewick(newick) {
+	let newNewick = ''
+	let reachedHyphen = false
+	for (let i = 0; i < newick.length; i++) {
+		if (newick[i] === '-' && !reachedHyphen) {
+			reachedHyphen = true
+			i++
+		}
+		if (reachedHyphen) {
+			if (newick[i] === ',')
+				reachedHyphen = false
+			newNewick += newick[i]
+		}
+		else if (newick[i] === '(' || newick[i] === ')') {
+			newNewick += newick[i]
+		}
 	}
-	myNewick += ')'
-	return myNewick
+	return newNewick
 }
