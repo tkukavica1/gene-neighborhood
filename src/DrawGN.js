@@ -6,6 +6,7 @@ const phylogician = require('phylogician')
 
 const HomologGroupTag = require('./HomologGroupTag')
 const HomologGroupEntry = require('./HomologGroupEntry')
+let currentNodeIndex = 1
 
 const arrow2line = d3.line()
 	.x(function(d) {
@@ -99,12 +100,24 @@ class DrawGN {
 		else
 			self.xDom.range([this.width, 0])
 
+		for (let k = currentNodeIndex + 1; k <= 1000000000; k++) {
+			if (d3.select('#tnt_tree_node_treeBox_' + k).attr('class') === 'leaf tnt_tree_node') {
+				currentNodeIndex = k
+				break
+			}
+		}
+
+		let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
+
 		const genes = self.svg.append('g')
 			.attr('class', 'geneCluster')
 			.attr('id', `GN${i}`)
 			.attr('transform', `translate (0, ${self.params.padding + i * (self.params.arrowThickness + self.params.paddingBetweenArrows)})`)
+			.attr('correspondingNodeID', corrNodeID)
 			.selectAll('.geneCluster')
 			.data(geneCluster.cluster)
+
+		d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
 
 		genes.enter()
 			.append('path')
