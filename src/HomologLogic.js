@@ -18,7 +18,6 @@ class HomologLogic {
 	init() {
 		const tagGroupZero = new HomologGroupTag(this.params.colorOfGroupZero)
 		const entryGroupZero = new HomologGroupEntry(tagGroupZero)
-		console.log('adding stuff to genes')
 		const t0 = performance.now()
 		this.geneHoodObject.genes.forEach((gene, geneIndex) => {
 			const groupList = new ListOfHomologGroups()
