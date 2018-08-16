@@ -88,7 +88,7 @@ class GeneHoodViewer {
 		}
 		if (this.checkData_(data)) {
 			this.geneHoodObject = new GeneHoodObject(data)
-			console.log(`hey there, there are ${this.geneHoodObject.gns.length} neighborhoods and ${this.geneHoodObject.genes.length}`)
+			console.log(`Hi! There are ${this.geneHoodObject.gns.length} neighborhoods and ${this.geneHoodObject.genes.length} genes.`)
 			return true
 		}
 		return false

@@ -6,6 +6,8 @@ const phylogician = require('phylogician')
 
 const HomologGroupTag = require('./HomologGroupTag')
 const HomologGroupEntry = require('./HomologGroupEntry')
+let currentNodeIndex = 1
+let currentLeafIndex = 0
 
 const arrow2line = d3.line()
 	.x(function(d) {
@@ -99,12 +101,26 @@ class DrawGN {
 		else
 			self.xDom.range([this.width, 0])
 
+		for (let k = currentNodeIndex + 1; k <= 1000000000; k++) {
+			if (d3.select('#tnt_tree_node_treeBox_' + k).attr('class') === 'leaf tnt_tree_node') {
+				currentNodeIndex = k
+				break
+			}
+		}
+
+		let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
+
 		const genes = self.svg.append('g')
 			.attr('class', 'geneCluster')
 			.attr('id', `GN${i}`)
 			.attr('transform', `translate (0, ${self.params.padding + i * (self.params.arrowThickness + self.params.paddingBetweenArrows)})`)
+			.attr('correspondingNodeID', corrNodeID)
 			.selectAll('.geneCluster')
 			.data(geneCluster.cluster)
+
+		d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
+			.attr('leafIndex', currentLeafIndex)
+		currentLeafIndex++
 
 		genes.enter()
 			.append('path')
@@ -172,8 +188,9 @@ class DrawGN {
 	}
 
 	drawTree(drawSpace, dimensions) {
-		const newick = this.geneHoodObject.phylo
-		phylogician.makeCustomTree(newick, 55)
+		const nodeYSpacing = 55
+		const newick = buildLocusNewick(this.geneHoodObject.phylo)
+		phylogician.makeCustomTree(newick, nodeYSpacing)
 	}
 
 	toggleGeneSelection_(geneIndex) {
@@ -406,22 +423,26 @@ class DrawGN {
 }
 
 /**
- * Temporary helper function that builds a newick string of commas dependent on the number of
- * gene clusters to be accommodated by the corresponding phylogenetic tree. The tree
- * will be built using this newick.
- *
- * @param numClusters Number of gene clusters to be accommodated in Newick.
- *
- * @return Appropriately built Newick string.
+ * 
+ * 
+ * @param {any} newick 
  */
-function buildNewickForClusters(numClusters) {
-	let myNewick = '('
-	for (let i = 0; i < numClusters - 1; i++) {
-		if (i % 5 === 0)
-			myNewick += '(,)'
-		else
-			myNewick += ','
+function buildLocusNewick(newick) {
+	let newNewick = ''
+	let reachedHyphen = false
+	for (let i = 0; i < newick.length; i++) {
+		if (newick[i] === '-' && !reachedHyphen) {
+			reachedHyphen = true
+			i++
+		}
+		if (reachedHyphen) {
+			if (newick[i] === ',')
+				reachedHyphen = false
+			newNewick += newick[i]
+		}
+		else if (newick[i] === '(' || newick[i] === ')') {
+			newNewick += newick[i]
+		}
 	}
-	myNewick += ')'
-	return myNewick
+	return newNewick
 }
