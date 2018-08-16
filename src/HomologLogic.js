@@ -27,7 +27,7 @@ class HomologLogic {
 			gene.blastHits = {}
 		})
 		this.addBlastHits()
-		console.log(`Done in: ${performance.now() - t0}ms`)
+		console.log(`Loaded in ${Math.floor(performance.now() - t0)}ms`)
 		return {
 			tagGroupZero,
 			entryGroupZero
