@@ -7,6 +7,7 @@ const phylogician = require('phylogician')
 const HomologGroupTag = require('./HomologGroupTag')
 const HomologGroupEntry = require('./HomologGroupEntry')
 let currentNodeIndex = 1
+let currentLeafIndex = 0
 
 const arrow2line = d3.line()
 	.x(function(d) {
@@ -118,6 +119,8 @@ class DrawGN {
 			.data(geneCluster.cluster)
 
 		d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
+			.attr('leafIndex', currentLeafIndex)
+		currentLeafIndex++
 
 		genes.enter()
 			.append('path')
