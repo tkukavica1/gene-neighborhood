@@ -47,7 +47,7 @@ class GeneHoodViewer {
 			const homologLogic = new HomologLogic(this.geneHoodObject)
 			const groupInit = homologLogic.init()
 
-			// Drawing tree and clusters
+			// Drawing tree and clusters.
 			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
 			this.drawGN.init(groupInit)
 			this.drawGN.drawTree(drawSpace, dimensions)
