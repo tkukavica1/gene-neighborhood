@@ -32,40 +32,49 @@ class GeneHoodViewer {
 				.attr('id', 'treeBox')
 				.attr('class', 'phyloTree')
 				.attr('width', dimensions.width * 0.25 + 'px')
-				.style('height', dimensions.height * 10 + 'px')
-				.style('overflow-y', 'hidden')
 
 			const svg = drawSpace.append('svg')
 				.attr('width', dimensions.width)
-				.attr('height', dimensions.height * 10)
 				.style('border', '1px solid black')
 
 			const geneHoodArea = svg.append('g')
 				.attr('class', 'geneHoodArea')
 				.attr('width', dimensions.width)
-				.attr('height', dimensions.height * 10)
 				.attr('transform', `translate (${1/3 * dimensions.width}, 20)`)
-				//.style('fill', 'white')
-
-			const zoomActions = () => {
-				geneHoodArea.attr('transform', (d) => {
-					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
-					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
-					return `translate(${1/3 * dimensions.width}, ${d3.event.sourceEvent.wheelDeltaY + currentTranslate})`
-				})
-			}
-			const zoomHandler = zoom.on('zoom', zoomActions)
-			zoomHandler(svg)
 
 			const widthGN = 2/3 * dimensions.width
 
 			const homologLogic = new HomologLogic(this.geneHoodObject)
 			const groupInit = homologLogic.init()
 
+			// Drawing tree and clusters
 			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
 			this.drawGN.init(groupInit)
 			this.drawGN.drawTree(drawSpace, dimensions)
 			this.drawGN.drawAllClusters()
+
+			// Enabling synchronized scrolling for both phylogenetic tree and gene cluster 'g' elements.
+			const treeAreaG = d3.select('#tnt_st_treeBox')
+			const treeSVG = d3.select('.tnt_groupDiv').select('svg')
+			let currTranslate = 0
+			const zoomActions = () => {
+				geneHoodArea.attr('transform', (d) => {
+					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
+					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
+					currTranslate = d3.event.sourceEvent.wheelDeltaY + currentTranslate
+					return `translate(${1/3 * dimensions.width}, ${currTranslate})`
+				})
+				treeAreaG.attr('transform', (d) => {
+					return `translate(20, ${currTranslate})`
+				})
+			}
+			const zoomHandler = zoom.on('zoom', zoomActions)
+			zoomHandler(svg)
+			zoomHandler(treeSVG)
+
+			// Setting height of viewing window to window dimensions.
+			treeSVG.style('height', dimensions.height)
+			svg.attr('height', dimensions.height)
 		}
 		else {
 			console.log('Error')
