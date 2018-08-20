@@ -1,7 +1,6 @@
 'use strict'
 
 const d3 = require('d3')
-//const drawGN = require('./drawGN')
 const DrawGN = require('./DrawGN')
 require('d3-selection')
 const zoom = d3.zoom()
