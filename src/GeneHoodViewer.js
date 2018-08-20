@@ -59,7 +59,6 @@ class GeneHoodViewer {
 			const zoomActions = () => {
 				geneHoodArea.attr('transform', (d) => {
 					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
-					console.log(currentTranslate)
 					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
 					currTranslate = d3.event.sourceEvent.wheelDeltaY + currentTranslate
 					let returner = isNaN(currTranslate) ? currentTranslate : currTranslate
