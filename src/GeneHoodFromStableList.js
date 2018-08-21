@@ -6,8 +6,15 @@ const NodeMist3 = require('node-mist3')
 const bunyan = require('bunyan')
 const pumpify = require('pumpify')
 
-const mistGenes = new NodeMist3.Genes()
-const mistGenomes = new NodeMist3.Genomes()
+const mist3ApiOptions = {
+	hostname: 'api.mistdb.caltech.edu',
+	path: '/',
+	headers: {},
+	agent: false
+}
+
+const mistGenes = new NodeMist3.Genes(mist3ApiOptions)
+const mistGenomes = new NodeMist3.Genomes(mist3ApiOptions)
 
 const kDefault = {
 	upstream: 5,

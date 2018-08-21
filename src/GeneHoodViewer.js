@@ -1,9 +1,12 @@
 'use strict'
 
 const d3 = require('d3')
-const drawGN = require('./drawGN')
+const DrawGN = require('./DrawGN')
 require('d3-selection')
 const zoom = d3.zoom()
+
+const GeneHoodObject = require('./GeneHoodObject')
+const HomologLogic = require('./HomologLogic')
 
 module.exports =
 class GeneHoodViewer {
@@ -15,48 +18,65 @@ class GeneHoodViewer {
 
 	changeColor(value) {
 		const svg = d3.select(this.domGNid_).select('svg')
-		drawGN.changeSelectionColor(svg, value)
+		this.drawGN.changeSelectionColor(value)
 	}
 
 	draw(dataString) {
 		if (this.upload_(dataString)) {
 			const drawSpace = d3.select(this.domGNid_)
 			const dimensions = drawSpace.node().getBoundingClientRect()
+
+			// Create div for the phylogenetic tree.
+			const treeSpace = drawSpace.append('div')
+				.attr('id', 'treeBox')
+				.attr('class', 'phyloTree')
+				.attr('width', dimensions.width * 0.25 + 'px')
+
 			const svg = drawSpace.append('svg')
 				.attr('width', dimensions.width)
-				.attr('height', dimensions.height * 10)
 				.style('border', '1px solid black')
 
 			const geneHoodArea = svg.append('g')
 				.attr('class', 'geneHoodArea')
 				.attr('width', dimensions.width)
-				.attr('height', dimensions.height * 10)
-				.attr('transform', `translate (${1/3 * dimensions.width}, 0)`)
-				//.style('fill', 'white')
+				.attr('transform', `translate (${1/3 * dimensions.width}, 20)`)
 
+			const widthGN = 2/3 * dimensions.width
+
+			const homologLogic = new HomologLogic(this.geneHoodObject)
+			const groupInit = homologLogic.init()
+
+			// Drawing tree and clusters.
+			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
+			this.drawGN.init(groupInit)
+			this.drawGN.drawTree(drawSpace, dimensions)
+			this.drawGN.drawAllClusters()
+
+			// Enabling synchronized scrolling for both phylogenetic tree and gene cluster 'g' elements.
+			const treeAreaG = d3.select('#tnt_st_treeBox')
+			const treeSVG = d3.select('.tnt_groupDiv').select('svg')
+			let currTranslate = 0
 			const zoomActions = () => {
 				geneHoodArea.attr('transform', (d) => {
 					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
 					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
-					return `translate(${1/3 * dimensions.width}, ${d3.event.sourceEvent.wheelDeltaY + currentTranslate})`
+					currTranslate = d3.event.sourceEvent.wheelDeltaY + currentTranslate
+					let returner = isNaN(currTranslate) ? currentTranslate : currTranslate
+					if (returner !== currTranslate)
+						currTranslate = returner
+					return `translate(${1/3 * dimensions.width}, ${returner})`
+				})
+				treeAreaG.attr('transform', (d) => {
+					return `translate(20, ${currTranslate})`
 				})
 			}
 			const zoomHandler = zoom.on('zoom', zoomActions)
 			zoomHandler(svg)
+			zoomHandler(treeSVG)
 
-			const widthGN = 2/3 * dimensions.width
-
-			let maxLenGeneCluster = 0
-			this.data.forEach((geneCluster) => {
-				const opLen = geneCluster.gn[geneCluster.gn.length - 1].stop - geneCluster.gn[0].start
-				if (maxLenGeneCluster < opLen)
-					maxLenGeneCluster = opLen
-			})
-			this.data.forEach((geneCluster, i) => {
-				drawGN.drawGeneCluster(geneHoodArea, geneCluster, i, maxLenGeneCluster, widthGN)
-			})
-			drawGN.alignClusters(geneHoodArea, this.data, dimensions.width - widthGN, widthGN)
-			// drawGN.reScaleClusters(svg, widthGN)
+			// Setting height of viewing window to window dimensions.
+			treeSVG.style('height', dimensions.height)
+			svg.attr('height', dimensions.height)
 		}
 		else {
 			console.log('Error')
@@ -78,16 +98,15 @@ class GeneHoodViewer {
 			return false
 		}
 		if (this.checkData_(data)) {
-			this.data = data.data
-			this.phylo = data.phylo
-			console.log(`hey there, there are ${this.data.length} main entries`)
+			this.geneHoodObject = new GeneHoodObject(data)
+			console.log(`Hi! There are ${this.geneHoodObject.gns.length} neighborhoods and ${this.geneHoodObject.genes.length} genes.`)
 			return true
 		}
 		return false
 	}
 
 	checkData_(data) {
-		if (!data.hasOwnProperty('data') || !data.hasOwnProperty('phylo')) {
+		if (!data.hasOwnProperty('genes') || !data.hasOwnProperty('gns') || !data.hasOwnProperty('phylo') || !data.hasOwnProperty('simLinks')) {
 			this.emitError_()
 			return false
 		}

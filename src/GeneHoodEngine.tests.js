@@ -13,13 +13,47 @@ const filePathOut = path.resolve(testDataPath, 'geneHood.pack.json')
 
 
 describe('GeneHood', function() {
-	it('should work', function() {
-		process.chdir('./data-test')
-		this.timeout(10000)
-		const geneHood = new GeneHoodEngine(filePathIn)
-		return geneHood.run(14, 14).then(() => {
-			const data = fs.readFileSync(filePathOut)
-			expect(data).to.not.eql('')
+	this.timeout(10000)
+	let dataParsed = {}
+	before(() => {
+		return new Promise((resolve) => {
+			process.chdir('./data-test')
+			const geneHood = new GeneHoodEngine(filePathIn)
+			return geneHood.run(14, 14).then(() => {
+				const data = fs.readFileSync(filePathOut)
+				dataParsed = JSON.parse(data)
+				resolve()
+			})
+		})
+	})
+	it('should not be empty', function() {
+		expect(dataParsed).to.not.eql('')
+	})
+	it('should have genes', function() {
+		expect(dataParsed).to.have.property('genes')
+	})
+	it('should have gns', function() {
+		expect(dataParsed).to.have.property('gns')
+	})
+	it('should have simLinks', function() {
+		expect(dataParsed).to.have.property('simLinks')
+	})
+	it('should have phylo', function() {
+		expect(dataParsed).to.have.property('phylo')
+	})
+	it('should not have -1 in any gns.cluster', function() {
+		dataParsed.gns.forEach((gn) => {
+			expect(gn.cluster).to.not.include(-1)
+		})
+	})
+	it('should not have refStrand in gns', function() {
+		dataParsed.gns.forEach((gn) => {
+			expect(gn).to.have.property('refStrand')
+		})
+	})
+	it('should not have span in gns', function() {
+		dataParsed.gns.forEach((gn) => {
+			expect(gn).to.have.property('span')
 		})
 	})
 	after(function() {

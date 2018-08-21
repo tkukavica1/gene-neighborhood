@@ -1,6 +1,6 @@
 {
   "name": "gene-neighborhood",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "Make figures of the gene neighborhood of a MSA.",
   "main": "index.js",
   "scripts": {
@@ -29,7 +29,7 @@
   "homepage": "https://github.com/theJensenLab/gene-neighborhood#readme",
   "dependencies": {
     "argparse": "^1.0.9",
-    "biojs-io-blast": "0.0.10",
+    "blastinutils": "^0.2.0",
     "body-parser": "^1.18.2",
     "bootstrap": "^3.3.7",
     "browserify": "^14.5.0",
@@ -43,7 +43,7 @@
     "figlet": "^1.2.0",
     "jquery": "^3.3.1",
     "multer": "^1.3.0",
-    "node-mist3": "^1.4.8",
+    "node-mist3": "^1.4.10",
     "pick-a-color": "^1.2.3",
     "pug": "^2.0.0-rc.4",
     "pumpify": "^1.4.0",
@@ -55,10 +55,16 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "glob": "^7.1.2",
+    "mgca": "github:tkukavica1/mgca#implementMGCA",
     "mocha": "^5.0.0",
     "mocha-bunyan-reporter": "0.0.2",
     "mocha-pretty-bunyan-nyan": "^1.0.4",
     "nyc": "^11.4.1",
+    "phylogician": "github:theJensenLab/phylogician#geneHoodUse",
+    "tnt.newick": "github:daviortega/tnt.newick#f-read-raxml-IC",
+    "tnt.tooltip": "github:tkukavica1/tnt.tooltip#d3v4",
+    "tnt.tree": "github:daviortega/tnt.tree#d3v4",
+    "tnt.utils": "github:tntvis/tnt.utils#d3v4",
     "watchify": "^3.10.0"
   }
 }
