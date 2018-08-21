@@ -358,6 +358,7 @@ class DrawGN {
 	}
 
 	displayGeneInfo_(geneIndex, tipId) {
+		let prod = ''
 		const gene = this.geneHoodObject.getGene(geneIndex)
 		const divtip = d3.select(tipId)
 		const genomes = new mist3.Genomes(this.httpsDefaultOptions, 'error')
@@ -367,7 +368,11 @@ class DrawGN {
 			organismName = info.name
 			divtip.transition()
 			const names = gene.names ? gene.names.join(',') : ''
-			divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}<br>${DA}</br></h>`)
+			if (gene.product.length > 64)
+				prod = gene.product.substr(0, 65) // Keeps the length of gene description appropriate.
+			else
+				prod = gene.product
+			divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${prod}<br>${DA}</br></h>`)
 		})
 	}
 
