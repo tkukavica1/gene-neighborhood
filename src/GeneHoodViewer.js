@@ -1,7 +1,6 @@
 'use strict'
 
 const d3 = require('d3')
-//const drawGN = require('./drawGN')
 const DrawGN = require('./DrawGN')
 require('d3-selection')
 const zoom = d3.zoom()
@@ -62,7 +61,10 @@ class GeneHoodViewer {
 					let currentTranslate = geneHoodArea.attr('transform') ? parseInt(geneHoodArea.attr('transform').match('( | -)[0-9]{1,10}')) : 0
 					currentTranslate = isNaN(currentTranslate) ? 0 : currentTranslate
 					currTranslate = d3.event.sourceEvent.wheelDeltaY + currentTranslate
-					return `translate(${1/3 * dimensions.width}, ${currTranslate})`
+					let returner = isNaN(currTranslate) ? currentTranslate : currTranslate
+					if (returner !== currTranslate)
+						currTranslate = returner
+					return `translate(${1/3 * dimensions.width}, ${returner})`
 				})
 				treeAreaG.attr('transform', (d) => {
 					return `translate(20, ${currTranslate})`
