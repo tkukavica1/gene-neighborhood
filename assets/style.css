@@ -58,3 +58,45 @@ body, html {
 #evalueCutOff {
     transform: translate(0px, 50px) rotate(-90deg);
 }
+
+#treeBox {
+    position: absolute;
+    z-index: 3;
+}
+
+#geneClusterBox {
+    position: absolute;
+    z-index: 1;
+}
+
+#geneHoodArea {
+    z-index: 1;
+}
+
+#branchWidthInput {
+    position: relative;
+    left:40%;
+    top:100px;
+    width: 300px;
+    height: 40px;
+
+    opacity: 1;
+    z-index: 10;
+}
+
+#tnt_tooltip_1 {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 1);
+    cursor: default;
+    z-index: 5;
+}
+
+.tnt_zmenu_header {
+    cursor: move;
+    z-index: 5;
+}
+  
+.tnt_zmenu_clickable {
+    cursor: pointer;
+    z-index: 5;
+}
