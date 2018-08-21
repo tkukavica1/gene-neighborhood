@@ -7,6 +7,7 @@ const zoom = d3.zoom()
 
 const GeneHoodObject = require('./GeneHoodObject')
 const HomologLogic = require('./HomologLogic')
+const phylogician = require('phylogician')
 
 module.exports =
 class GeneHoodViewer {

@@ -81,7 +81,7 @@ class DrawGN {
 			self.interactiveParams.searched.clear()
 			const t0 = performance.now()
 			self.markHomologs(null)
-			console.log(`markHomologs took ${performance.now() - t0} ms`)
+			// console.log(`markHomologs took ${performance.now() - t0} ms`)
 			self.unMarkHomologs()
 		})
 	}
@@ -190,7 +190,8 @@ class DrawGN {
 	drawTree(drawSpace, dimensions) {
 		const nodeYSpacing = 55
 		const newick = buildLocusNewick(this.geneHoodObject.phylo)
-		phylogician.makeCustomTree(newick, nodeYSpacing)
+		let rootNode = phylogician.makeCustomTree(newick, nodeYSpacing)
+		return rootNode
 	}
 
 	toggleGeneSelection_(geneIndex) {
