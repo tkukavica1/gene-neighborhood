@@ -362,12 +362,12 @@ class DrawGN {
 		const divtip = d3.select(tipId)
 		const genomes = new mist3.Genomes(this.httpsDefaultOptions, 'error')
 		let organismName = ''
-		// const DA = "" // `<img src="httpss://api.mistdb.caltech.edu/v1/aseqs/${gene.aseq_id}.png">`
+		const DA = `<img src="http://seqdepot.net/api/v1/aseqs/${gene.aseq_id}.png">`
 		genomes.getGenomeInfoByVersion(gene.stable_id.split('-')[0]).then((info) => {
 			organismName = info.name
 			divtip.transition()
 			const names = gene.names ? gene.names.join(',') : ''
-			divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}</h>`)
+			divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}<br>${DA}</br></h>`)
 		})
 	}
 
