@@ -49,7 +49,7 @@ class GeneHoodViewer {
 			// Drawing tree and clusters.
 			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
 			this.drawGN.init(groupInit)
-			this.drawGN.drawTree(drawSpace, dimensions)
+			// this.drawGN.drawTree(drawSpace, dimensions)
 			this.drawGN.drawAllClusters()
 
 			// Enabling synchronized scrolling for both phylogenetic tree and gene cluster 'g' elements.

@@ -38,7 +38,11 @@ body, html {
     z-index: 10;
 }
 
-#divColor, #divTip, #compTip, #divSlider {
+#divControls {
+    display: table-column;
+}
+
+#divColor, #divTip, #compTip, #divSlider #divSliderText {
     display: table-cell;
 }
 
@@ -52,11 +56,10 @@ body, html {
 
 #divSlider {
     width: 100px;
-    height: 130px;
 }
 
-#evalueCutOff {
-    transform: translate(0px, 50px) rotate(-90deg);
+#divSliderText {
+    width: 50px;
 }
 
 #treeBox {
