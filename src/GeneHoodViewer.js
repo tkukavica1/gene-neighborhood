@@ -7,6 +7,8 @@ const zoom = d3.zoom()
 
 const GeneHoodObject = require('./GeneHoodObject')
 const HomologLogic = require('./HomologLogic')
+const phylogician = require('phylogician')
+const mgca = require('mgca')
 
 module.exports =
 class GeneHoodViewer {
@@ -49,8 +51,10 @@ class GeneHoodViewer {
 			// Drawing tree and clusters.
 			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
 			this.drawGN.init(groupInit)
-			this.drawGN.drawTree(drawSpace, dimensions)
+			let rootNode = this.drawGN.drawTree(drawSpace, dimensions)
 			this.drawGN.drawAllClusters()
+			this.drawGN.assignClusterAndNodeIDS() // Ensure all gene cluster loci and nodes are linked.
+			phylogician.matchNodesAndClusters(rootNode, rootNode.get_all_leaves()) // Refresh the node-cluster linkage on the front end.
 
 			// Enabling synchronized scrolling for both phylogenetic tree and gene cluster 'g' elements.
 			const treeAreaG = d3.select('#tnt_st_treeBox')
