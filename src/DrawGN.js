@@ -101,26 +101,12 @@ class DrawGN {
 		else
 			self.xDom.range([this.width, 0])
 
-		for (let k = currentNodeIndex + 1; k <= 1000000000; k++) {
-			if (d3.select('#tnt_tree_node_treeBox_' + k).attr('class') === 'leaf tnt_tree_node') {
-				currentNodeIndex = k
-				break
-			}
-		}
-
-		let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
-
 		const genes = self.svg.append('g')
 			.attr('class', 'geneCluster')
 			.attr('id', `GN${i}`)
 			.attr('transform', `translate (0, ${self.params.padding + i * (self.params.arrowThickness + self.params.paddingBetweenArrows)})`)
-			.attr('correspondingNodeID', corrNodeID)
 			.selectAll('.geneCluster')
 			.data(geneCluster.cluster)
-
-		d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
-			.attr('leafIndex', currentLeafIndex)
-		currentLeafIndex++
 
 		genes.enter()
 			.append('path')
@@ -171,20 +157,37 @@ class DrawGN {
 				if (gene.names)
 					names = gene.names.join(', ')
 				const dx = this.getComputedTextLength(names)
-				// // console.log(dx)
 				const y = self.geneNameFontSize + self.params.arrowThickness + dx * Math.cos(self.geneNameInclination) + self.geneNameFontSize / 2
 				let x = self.xDom(gene.start - geneCluster.span.center) + (self.xDom(gene.stop) - self.xDom(gene.start)) / 2 - dx / 2
 				if (geneCluster.refStrand === '+')
 					x += self.width / 2
 				else
 					x -= self.width / 2 
-				// // console.log(self.xDom(gene.start - geneCluster.span.center))
 				gene.textPos = {
 					x,
 					y
 				}
 				return `translate(${x}, ${y}) rotate(${self.geneNameInclination}) `
 			})
+	}
+
+	assignClusterAndNodeIDS() {
+		let locus = ''
+		for (let i = 0; i < this.geneHoodObject.gns.length; i++) {
+			locus = this.geneHoodObject.genes[this.geneHoodObject.gns[i].ref].locus
+			currentNodeIndex = 0
+			for (let k = currentNodeIndex + 1; k <= 1000000000; k++) {
+				if (d3.select('#tnt_tree_node_treeBox_' + k).attr('class') === 'leaf tnt_tree_node' &&
+					d3.select('#tnt_tree_node_treeBox_' + k).select('text')
+						.text() === locus) {
+					currentNodeIndex = k
+					break
+				}
+			}
+			let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
+			d3.select(`#GN${i}`).attr('correspondingNodeID', corrNodeID)
+			d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
+		}
 	}
 
 	drawTree(drawSpace, dimensions) {
