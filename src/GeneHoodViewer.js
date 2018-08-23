@@ -51,7 +51,7 @@ class GeneHoodViewer {
 			// Drawing tree and clusters.
 			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
 			this.drawGN.init(groupInit)
-			let rootNode = this.drawGN.drawTree(drawSpace, dimensions)
+			let rootNode = this.drawGN.drawTree(drawSpace)
 			this.drawGN.drawAllClusters()
 			this.drawGN.assignClusterAndNodeIDS() // Ensure all gene cluster loci and nodes are linked.
 			phylogician.matchNodesAndClusters(rootNode, rootNode.get_all_leaves()) // Refresh the node-cluster linkage on the front end.
