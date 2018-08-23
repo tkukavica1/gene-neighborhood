@@ -38,28 +38,31 @@ body, html {
     z-index: 10;
 }
 
-#divControls {
-    display: table-column;
-}
-
-#divColor, #divTip, #compTip, #divSlider #divSliderText {
-    display: table-cell;
-}
-
 #divColor {
-    vertical-align: middle
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-#divTip {
-    width: 500px;
+#evalueCutOff {
+    width: 100px;
 }
 
 #divSlider {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#evalueCutOffText {
     width: 100px;
 }
 
 #divSliderText {
-    width: 50px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#divTip {
+    width: 500px;
 }
 
 #treeBox {

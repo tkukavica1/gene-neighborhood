@@ -12,15 +12,16 @@ html(lang='en')
 		label(class="btn btn-primary", id="fileFormLabel", for="jsonUpload") Upload JSON
 			input(type='file', id='jsonUpload', style='display: none', onChange='uploadData(this)')
 		.geneInfo
-			#divControl
-				#divColor
-					input(type="text" value="006EBD" name="fillColor" class="pick-a-color form-control" onChange='changeColor(this.value)')
-				#divSlider
-					input(type='range', min='1', value='100', max='201', id='evalueCutOff')
-				#divSliderText
-					input(type='text', value='100', id='evalueCutOffText', width=40)
-			#divTip
-			#compTip
+			.row
+				.col-sm-1#divControl
+					.col-sm#divColor
+						input(type="text" value="006EBD" name="fillColor" class="pick-a-color form-control" onChange='changeColor(this.value)')
+					.col-sm#divSlider
+						input(type='range', min='1', value='100', max='201', id='evalueCutOff')
+					.col-sm#divSliderText
+						input(type='text', value='100', id='evalueCutOffText')
+				.col-sm-4#divTip
+				.col-sm-4#compTip
 
 		.container#error
 			.alert-danger.error(style='position: absolute')
