@@ -55,6 +55,7 @@ class GeneHoodViewer {
 			this.drawGN.drawAllClusters()
 			this.drawGN.assignClusterAndNodeIDS() // Ensure all gene cluster loci and nodes are linked.
 			phylogician.matchNodesAndClusters(rootNode, rootNode.get_all_leaves()) // Refresh the node-cluster linkage on the front end.
+			mgca.test()
 
 			// Enabling synchronized scrolling for both phylogenetic tree and gene cluster 'g' elements.
 			const treeAreaG = d3.select('#tnt_st_treeBox')
