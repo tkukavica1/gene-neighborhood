@@ -212,8 +212,8 @@ class DrawGN {
 	drawTree(drawSpace) {
 		const nodeYSpacing = 55
 		const newick = buildLocusNewick(this.geneHoodObject.phylo)
-		let rootNode = phylogician.makeCustomTree(newick, nodeYSpacing)
-		return rootNode
+		let tree = phylogician.makeCustomTree(newick, nodeYSpacing)
+		return tree
 	}
 
 	toggleGeneSelection_(geneIndex) {
