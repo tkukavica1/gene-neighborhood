@@ -7,7 +7,8 @@ const d3 = require('d3'),
 	clusterOperations = require('./clusterOperations.js'),
 	tntTooltip = phylogician.tntTooltip,
 	tooltipWidth = 120,
-	colSpan = 2
+	colSpan = 2,
+	aligned = [] // Array containing IDs of nodes whose subtrees are aligned
 
 function generateTooltip(tree, node, thisSelf) {
 	tntTooltip.table(tree, node)
@@ -22,18 +23,43 @@ function addTooltipButtons(tree, node) {
 	let tooltip = d3.select('#tnt_tooltip_1')
 	let id = '#tnt_tree_node_treeBox_' + node.id()
 
-	// Adding collapsed node button
-	let collapseButton = appendButton(tooltip, node.is_collapsed(), 'Uncollapse Node', 'Collapse Node', '#3287d7', 'black')
-	collapseButton.on('click', function() {
-		treeOperations.toggleNodeProperty(node)
-		treeOperations.updateUserChanges(tree)
+	// Adding align button
+	let testButton = appendButton(tooltip, true, 'Align Subtree', null, '#3287d7', 'black')
+	// Create node property aligned that is active unless it is uncollapsed in the future?
+	testButton.on('click', function() {
+		console.log('Alignment button is connected.')
 		d3.select(id)
 			.select('.tnt_node_display_elem')
 			.attr('fill', 'black')
-			.attr('x', -10)
-			.attr('y', -9)
 		closeTooltip()
 	})
+
+	// Adding collapsed node button
+	let collapseButton = appendButton(tooltip, node.is_collapsed(), 'Uncollapse Node', 'Collapse Node', '#3287d7', 'black')
+	if (!aligned.includes(node.id())) {
+		collapseButton.style('color', 'gray')
+		collapseButton.on('mouseover', function() {
+			collapseButton.style('color', 'gray')
+		})
+		collapseButton.on('mouseout', function() {
+			collapseButton.style('color', 'gray')
+		})
+		collapseButton.on('click', function() {
+			collapseButton.style('color', 'red')
+		})
+	}
+	else {
+		collapseButton.on('click', function() {
+			treeOperations.toggleNodeProperty(node)
+			treeOperations.updateUserChanges(tree)
+			d3.select(id)
+				.select('.tnt_node_display_elem')
+				.attr('fill', 'black')
+				.attr('x', -10)
+				.attr('y', -9)
+			closeTooltip()
+		})
+	}
 
 	// Adding ladderize subtree button
 	let ladderizeButton = appendButton(tooltip, true, 'Ladderize Subtree', null, '#3287d7', 'black')
@@ -54,16 +80,6 @@ function addTooltipButtons(tree, node) {
 		treeOperations.rerootTree(tree, node)
 		treeOperations.updateUserChanges(tree)
 		clusterOperations.matchNodesAndClusters(tree.root(), tree.root().get_all_leaves())
-		d3.select(id)
-			.select('.tnt_node_display_elem')
-			.attr('fill', 'black')
-		closeTooltip()
-	})
-
-	// Adding test button
-	let testButton = appendButton(tooltip, true, 'Test Button', null, '#3287d7', 'black')
-	testButton.on('click', function() {
-		console.log('testing button')
 		d3.select(id)
 			.select('.tnt_node_display_elem')
 			.attr('fill', 'black')
@@ -91,6 +107,7 @@ function appendButton(tooltipDiv, boolean, activeText, inactiveText, mouseoverCo
 		.attr('colspan', colSpan)
 		.text(text)
 		.style('text-align', 'center')
+		.style('color', mouseoutColor)
 	newButton.on('mouseover', function() {
 		newButton.style('color', mouseoverColor)
 	})
