@@ -442,26 +442,26 @@ class DrawGN {
 		const h = H / 5
 		if (strand !== '-') {
 			arrow = [
-				{x: startX, y: (H/2)},
-				{x: startX + len * 8/11, y: (H/2)},
-				{x: startX + len * 8/11, y: (H/2) - h},
-				{x: startX + len, y: (H/2) + h*1.5},
-				{x: startX + len * 8/11, y: (H/2) + h * 4},
-				{x: startX + len * 8/11, y: (H/2) + h * 3},
-				{x: startX, y: (H/2) + h * 3},
-				{x: startX, y: (H/2) - arrowBorderWidth/2}
+				{x: startX, y: (H / 2)},
+				{x: startX + len * 8 / 11, y: (H / 2)},
+				{x: startX + len * 8 / 11, y: (H / 2) - h},
+				{x: startX + len, y: (H / 2) + h*1.5},
+				{x: startX + len * 8 / 11, y: (H / 2) + h * 4},
+				{x: startX + len * 8 / 11, y: (H / 2) + h * 3},
+				{x: startX, y: (H / 2) + h * 3},
+				{x: startX, y: (H / 2) - arrowBorderWidth / 2}
 			]
 		}
 		else {
 			arrow = [
 				{x: startX, y: (H/2) + h * 1.5},
-				{x: startX + len * 3/11, y: (H/2) - h},
-				{x: startX + len * 3/11, y: (H/2)},
-				{x: startX + len, y: (H/2)},
-				{x: startX + len, y: (H/2) + h * 3},
-				{x: startX + len * 3/11, y: (H/2) + h * 3},
-				{x: startX + len * 3/11, y: (H/2) + h * 4},
-				{x: startX, y: (H/2) + h * 1.5}
+				{x: startX + len * 3 / 11, y: (H / 2) - h},
+				{x: startX + len * 3 / 11, y: (H / 2)},
+				{x: startX + len, y: (H / 2)},
+				{x: startX + len, y: (H / 2) + h * 3},
+				{x: startX + len * 3 / 11, y: (H / 2) + h * 3},
+				{x: startX + len * 3 / 11, y: (H / 2) + h * 4},
+				{x: startX, y: (H / 2) + h * 1.5}
 			]
 		}
 		return arrow
