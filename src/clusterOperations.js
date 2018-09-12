@@ -3,7 +3,9 @@
 
 const d3 = require('d3'),
 	mgca = require('mgca')
-let drawGN = null
+let drawGN = null,
+	clusterIDs = {},
+	homologueIDs = {}
 
 /**
  * Rearranges clusters based on current node position. Intended as helper function
@@ -73,7 +75,7 @@ function canAlign(node) {
 function runAlignment(node) {
 	let counter = 1
 	let clusterMatrix = []
-	let clusterIDs = {} // Holds gene number as key (string!), program assigned number used in MGCA alignment as value
+	clusterIDs = {} // Holds gene number as key (string!), program assigned number used in MGCA alignment as value
 	let homologueIDs = {} // Holds homologue group has as key (string), program assigned number used in MGCA alignment as value
 	let leavesArr = node.get_all_leaves()
 	for (let i = 0; i < leavesArr.length; i++) {
@@ -168,6 +170,24 @@ function runAlignment(node) {
 	console.log(mgca.runMGCA(clusterMatrix))
 	return mgca.runMGCA(clusterMatrix)
 	// Need to store clusterIDs somehow!
+}
+
+/**
+ * Get function for the clusterIDs dictionary.
+ * 
+ * @returns The clusterIDs dictionary generated during most recent alignment
+ */
+function getClusterIDs() {
+	return clusterIDs
+}
+
+/**
+ * Get function for the homologueIDs dictionary
+ * 
+ * @returns The homologueIDs dictionary generated during most recent alignment
+ */
+function getHomologueIDs() {
+	return homologueIDs
 }
 
 exports.matchNodesAndClusters = matchNodesAndClusters
