@@ -24,15 +24,29 @@ function addTooltipButtons(tree, node) {
 	let id = '#tnt_tree_node_treeBox_' + node.id()
 
 	// Adding align button
-	let testButton = appendButton(tooltip, true, 'Align Subtree', null, '#3287d7', 'black')
+	let alignButton = appendButton(tooltip, true, 'Align Subtree', null, '#3287d7', 'black')
 	// Create node property aligned that is active unless it is uncollapsed in the future?
-	testButton.on('click', function() {
-		console.log('Alignment button is connected.')
-		d3.select(id)
-			.select('.tnt_node_display_elem')
-			.attr('fill', 'black')
-		closeTooltip()
-	})
+	if (node.is_collapsed() || !clusterOperations.canAlign(node)) {
+		alignButton.style('color', 'gray')
+		alignButton.on('mouseover', function() {
+			alignButton.style('color', 'gray')
+		})
+		alignButton.on('mouseout', function() {
+			alignButton.style('color', 'gray')
+		})
+		alignButton.on('click', function() {
+			alignButton.style('color', 'red')
+		})
+	}
+	else {
+		alignButton.on('click', function() {
+			console.log('Alignment button is connected.')
+			d3.select(id)
+				.select('.tnt_node_display_elem')
+				.attr('fill', 'black')
+			closeTooltip()
+		})
+	}
 
 	// Adding collapsed node button
 	let collapseButton = appendButton(tooltip, node.is_collapsed(), 'Uncollapse Node', 'Collapse Node', '#3287d7', 'black')
