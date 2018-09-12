@@ -119,7 +119,9 @@ class DrawGN {
 
 		genes.enter()
 			.append('path')
-			.attr('class', 'arrow')
+			.attr('class', (geneIndex) => {
+				return 'arrow ' + 'gene' + geneIndex
+			})
 			.attr('d', (geneIndex) => {
 				const arrows = self.makeArrows(geneIndex, geneCluster.span.center, geneCluster.refStrand)
 				return arrows
@@ -138,6 +140,7 @@ class DrawGN {
 				// const gene = self.geneHoodObject.getGene(geneIndex)
 				// return gene.groups.getLastGroupColor()
 			})
+			.attr('alignID', 'none')
 			.on('click', (geneIndex) => {
 				const t0 = performance.now()
 				self.interactiveParams.searched.clear()

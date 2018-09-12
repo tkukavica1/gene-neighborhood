@@ -76,7 +76,7 @@ function runAlignment(node) {
 	let counter = 1
 	let clusterMatrix = []
 	clusterIDs = {} // Holds gene number as key (string!), program assigned number used in MGCA alignment as value
-	let homologueIDs = {} // Holds homologue group has as key (string), program assigned number used in MGCA alignment as value
+	homologueIDs = {} // Holds homologue group has as key (string), program assigned number used in MGCA alignment as value
 	let leavesArr = node.get_all_leaves()
 	for (let i = 0; i < leavesArr.length; i++) {
 		let currentRow = [] // Row to be added to clusterMatrix representing this gene cluster
@@ -101,6 +101,8 @@ function runAlignment(node) {
 			homologueIDs[hash] = counter
 			counter++
 		}
+		d3.select('#GN' + currentClusterNum).selectAll('.gene' + key)
+			.attr('alignID', clusterIDs[key])
 		// drawGN.geneHoodObject.genes[refGene].groups.groups_.length
 		let index = currentClusterObj.cluster.indexOf(refGene)
 		let temp = index
@@ -129,6 +131,8 @@ function runAlignment(node) {
 					homologueIDs[hash] = counter
 					counter++
 				}
+				d3.select('#GN' + currentClusterNum).selectAll('.gene' + key)
+					.attr('alignID', clusterIDs[key])
 			}
 			catch (error) {
 				success = false
@@ -160,6 +164,8 @@ function runAlignment(node) {
 					homologueIDs[hash] = counter
 					counter++
 				}
+				d3.select('#GN' + currentClusterNum).selectAll('.gene' + key)
+					.attr('alignID', clusterIDs[key])
 			}
 			catch (error) {
 				success = false
