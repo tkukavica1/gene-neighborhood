@@ -49,6 +49,7 @@ function matchNodesAndClusters(node, leavesArr, paramDrawGN) {
  * @returns True if alignment is possible, false if it is not.
  */
 function canAlign(node) {
+	// Future: Need to account for alignment of alignments.
 	let leavesArr = node.get_all_leaves()
 	for (let i = 0; i < leavesArr.length; i++) {
 		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
