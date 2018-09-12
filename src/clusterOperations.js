@@ -63,6 +63,13 @@ function canAlign(node) {
 	return true
 }
 
+/**
+ * Runs MGCA on the leaves of the passed node.
+ *
+ * @param {any} node The node whose subtree's leaves are to be aligned.
+ *
+ * @returns The result of the alignment
+ */
 function runAlignment(node) {
 	let counter = 1
 	let clusterMatrix = []
