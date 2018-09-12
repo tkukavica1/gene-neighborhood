@@ -142,7 +142,7 @@ class DrawGN {
 				const t0 = performance.now()
 				self.interactiveParams.searched.clear()
 				this.toggleGeneSelection_(geneIndex)
-				console.log(`Toggle took ${performance.now() - t0} ms`)
+				// console.log(`Toggle took ${performance.now() - t0} ms`)
 
 			})
 			.on('mouseover', (geneIndex) => {
@@ -220,7 +220,7 @@ class DrawGN {
 		const t0 = performance.now()
 		const gene = this.geneHoodObject.getGene(geneIndex)
 		const t1 = performance.now()
-		console.log(`ToggleGene :: It took ${t1 - t0} ms to find a gene`)
+		// console.log(`ToggleGene :: It took ${t1 - t0} ms to find a gene`)
 		if (this.interactiveParams.mouseover) {
 			this.interactiveParams.selected = geneIndex
 			// console.log(`group ${gene.groups.getLastGroupHash()}`)
@@ -237,7 +237,7 @@ class DrawGN {
 				this.interactiveParams.currentGroupTag = gene.groups.getLastGroupTag()
 			}
 			const t2 = performance.now()
-			console.log(`ToggleGene :: It took ${t2 - t1} ms to create a group`)
+			// console.log(`ToggleGene :: It took ${t2 - t1} ms to create a group`)
 			this.svg.selectAll('.arrow')
 				.filter((arrowIndex) => {
 					const arrow = this.geneHoodObject.getGene(arrowIndex)
@@ -249,7 +249,7 @@ class DrawGN {
 					return gene.groups.getLastGroupColor()
 				})
 			const t3 = performance.now()
-			console.log(`ToggleGene :: It took ${t3 - t2} ms to color red border of selected gene`)
+			// console.log(`ToggleGene :: It took ${t3 - t2} ms to color red border of selected gene`)
 			this.svg.selectAll('.arrow')
 				.filter((arrowIndex) => {
 					const arrow = this.geneHoodObject.getGene(arrowIndex)
@@ -259,19 +259,19 @@ class DrawGN {
 					return false
 				})
 			const t4 = performance.now()
-			console.log(`ToggleGene :: It took ${t4 - t3} ms to mute click of other genes`)
+			// console.log(`ToggleGene :: It took ${t4 - t3} ms to mute click of other genes`)
 			this.svg.selectAll('.arrow').on('mouseover', (g) => {
 				d3.select('#compTip').style('display', 'table-cell')
 				this.displayGeneInfo_(g, '#compTip')
 			})
 			const t5 = performance.now()
-			console.log(`ToggleGene :: It took ${t5 - t4} ms to make new mouse over in all genes`)
+			// console.log(`ToggleGene :: It took ${t5 - t4} ms to make new mouse over in all genes`)
 			this.interactiveParams.mouseover = false
 			this.markHomologs(geneIndex)
 			const t6 = performance.now()
-			console.log(`ToggleGene :: It took ${t6 - t5} ms to run markHomologs`)
+			// console.log(`ToggleGene :: It took ${t6 - t5} ms to run markHomologs`)
 			this.displayGeneInfo_(geneIndex, '#divTip')
-			console.log(`ToggleGene :: total time - ${t6 - t0} ms`)
+			// console.log(`ToggleGene :: total time - ${t6 - t0} ms`)
 		}
 		else {
 			this.interactiveParams.selected = false

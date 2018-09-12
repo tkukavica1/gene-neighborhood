@@ -40,7 +40,8 @@ function addTooltipButtons(tree, node) {
 	}
 	else {
 		alignButton.on('click', function() {
-			console.log('Alignment button is connected.')
+			clusterOperations.runAlignment(node)
+			aligned.push(node.id())
 			d3.select(id)
 				.select('.tnt_node_display_elem')
 				.attr('fill', 'black')
