@@ -142,7 +142,7 @@ class DrawGN {
 				const t0 = performance.now()
 				self.interactiveParams.searched.clear()
 				this.toggleGeneSelection_(geneIndex)
-				console.log(`Toggle took ${performance.now() - t0} ms`)
+				// console.log(`Toggle took ${performance.now() - t0} ms`)
 
 			})
 			.on('mouseover', (geneIndex) => {
@@ -204,9 +204,9 @@ class DrawGN {
 
 	/**
 	 * Uses Phylogician to create a tree with desired node spacing using the Newick provided in this.geneHoodObject.
-	 * 
+	 *
 	 * @param {any} drawSpace The space in which to draw the SVG tree object (currently not used).
-	 * 
+	 *
 	 * @returns The root node of the tree.
 	 */
 	drawTree(drawSpace) {
@@ -220,7 +220,7 @@ class DrawGN {
 		const t0 = performance.now()
 		const gene = this.geneHoodObject.getGene(geneIndex)
 		const t1 = performance.now()
-		console.log(`ToggleGene :: It took ${t1 - t0} ms to find a gene`)
+		// console.log(`ToggleGene :: It took ${t1 - t0} ms to find a gene`)
 		if (this.interactiveParams.mouseover) {
 			this.interactiveParams.selected = geneIndex
 			// console.log(`group ${gene.groups.getLastGroupHash()}`)
@@ -237,7 +237,7 @@ class DrawGN {
 				this.interactiveParams.currentGroupTag = gene.groups.getLastGroupTag()
 			}
 			const t2 = performance.now()
-			console.log(`ToggleGene :: It took ${t2 - t1} ms to create a group`)
+			// console.log(`ToggleGene :: It took ${t2 - t1} ms to create a group`)
 			this.svg.selectAll('.arrow')
 				.filter((arrowIndex) => {
 					const arrow = this.geneHoodObject.getGene(arrowIndex)
@@ -249,7 +249,7 @@ class DrawGN {
 					return gene.groups.getLastGroupColor()
 				})
 			const t3 = performance.now()
-			console.log(`ToggleGene :: It took ${t3 - t2} ms to color red border of selected gene`)
+			// console.log(`ToggleGene :: It took ${t3 - t2} ms to color red border of selected gene`)
 			this.svg.selectAll('.arrow')
 				.filter((arrowIndex) => {
 					const arrow = this.geneHoodObject.getGene(arrowIndex)
@@ -259,19 +259,19 @@ class DrawGN {
 					return false
 				})
 			const t4 = performance.now()
-			console.log(`ToggleGene :: It took ${t4 - t3} ms to mute click of other genes`)
+			// console.log(`ToggleGene :: It took ${t4 - t3} ms to mute click of other genes`)
 			this.svg.selectAll('.arrow').on('mouseover', (g) => {
 				d3.select('#compTip').style('display', 'table-cell')
 				this.displayGeneInfo_(g, '#compTip')
 			})
 			const t5 = performance.now()
-			console.log(`ToggleGene :: It took ${t5 - t4} ms to make new mouse over in all genes`)
+			// console.log(`ToggleGene :: It took ${t5 - t4} ms to make new mouse over in all genes`)
 			this.interactiveParams.mouseover = false
 			this.markHomologs(geneIndex)
 			const t6 = performance.now()
-			console.log(`ToggleGene :: It took ${t6 - t5} ms to run markHomologs`)
+			// console.log(`ToggleGene :: It took ${t6 - t5} ms to run markHomologs`)
 			this.displayGeneInfo_(geneIndex, '#divTip')
-			console.log(`ToggleGene :: total time - ${t6 - t0} ms`)
+			// console.log(`ToggleGene :: total time - ${t6 - t0} ms`)
 		}
 		else {
 			this.interactiveParams.selected = false
@@ -372,7 +372,7 @@ class DrawGN {
 
 	/**
 	 * Changesd the color of the currently selected gene homolog group.
-	 * 
+	 *
 	 * @param {any} color The desired color.
 	 */
 	changeSelectionColor(color) {
@@ -395,7 +395,7 @@ class DrawGN {
 
 	/**
 	 * Displays the gene information of the currently selected gene.
-	 * 
+	 *
 	 * @param {any} geneIndex The index of the current gene.
 	 * @param {any} tipId The ID of the gene's tooltip in the HTML.
 	 */
@@ -442,26 +442,26 @@ class DrawGN {
 		const h = H / 5
 		if (strand !== '-') {
 			arrow = [
-				{x: startX, y: (H/2)},
-				{x: startX + len * 8/11, y: (H/2)},
-				{x: startX + len * 8/11, y: (H/2) - h},
-				{x: startX + len, y: (H/2) + h*1.5},
-				{x: startX + len * 8/11, y: (H/2) + h * 4},
-				{x: startX + len * 8/11, y: (H/2) + h * 3},
-				{x: startX, y: (H/2) + h * 3},
-				{x: startX, y: (H/2) - arrowBorderWidth/2}
+				{x: startX, y: (H / 2)},
+				{x: startX + len * 8 / 11, y: (H / 2)},
+				{x: startX + len * 8 / 11, y: (H / 2) - h},
+				{x: startX + len, y: (H / 2) + h*1.5},
+				{x: startX + len * 8 / 11, y: (H / 2) + h * 4},
+				{x: startX + len * 8 / 11, y: (H / 2) + h * 3},
+				{x: startX, y: (H / 2) + h * 3},
+				{x: startX, y: (H / 2) - arrowBorderWidth / 2}
 			]
 		}
 		else {
 			arrow = [
 				{x: startX, y: (H/2) + h * 1.5},
-				{x: startX + len * 3/11, y: (H/2) - h},
-				{x: startX + len * 3/11, y: (H/2)},
-				{x: startX + len, y: (H/2)},
-				{x: startX + len, y: (H/2) + h * 3},
-				{x: startX + len * 3/11, y: (H/2) + h * 3},
-				{x: startX + len * 3/11, y: (H/2) + h * 4},
-				{x: startX, y: (H/2) + h * 1.5}
+				{x: startX + len * 3 / 11, y: (H / 2) - h},
+				{x: startX + len * 3 / 11, y: (H / 2)},
+				{x: startX + len, y: (H / 2)},
+				{x: startX + len, y: (H / 2) + h * 3},
+				{x: startX + len * 3 / 11, y: (H / 2) + h * 3},
+				{x: startX + len * 3 / 11, y: (H / 2) + h * 4},
+				{x: startX, y: (H / 2) + h * 1.5}
 			]
 		}
 		return arrow
@@ -471,9 +471,9 @@ class DrawGN {
 
 /**
  * Helper function that builds a Newick that only has locus as each node's text.
- * 
+ *
  * @param {any} newick The unparsed Newick string generated by GeneHood.
- * 
+ *
  * @returns The newly built Newick string that only has locus as node text.
  */
 function buildLocusNewick(newick) {
