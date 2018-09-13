@@ -173,7 +173,6 @@ function runAlignment(node) {
 		}
 		clusterMatrix.push(currentRow)
 	}
-	console.log(mgca.runMGCA(clusterMatrix))
 	return mgca.runMGCA(clusterMatrix)
 	// Need to store clusterIDs somehow!
 }

@@ -40,7 +40,8 @@ function addTooltipButtons(tree, node) {
 	}
 	else {
 		alignButton.on('click', function() {
-			clusterOperations.runAlignment(node)
+			node.property('alignment', clusterOperations.runAlignment(node))
+			console.log(node.property('alignment'))
 			aligned.push(node.id())
 			d3.select(id)
 				.select('.tnt_node_display_elem')
@@ -66,6 +67,8 @@ function addTooltipButtons(tree, node) {
 	else {
 		collapseButton.on('click', function() {
 			treeOperations.toggleNodeProperty(node)
+			if (!node.is_collapsed())
+				aligned.remove(node.id()) // Removes from aligned nodes, since no longer aligned and modifications may be made
 			treeOperations.updateUserChanges(tree)
 			d3.select(id)
 				.select('.tnt_node_display_elem')
