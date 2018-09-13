@@ -233,7 +233,7 @@ function drawGap(currentClusterID, precedingGeneClass, length) {
 }
 
 function buildLogo(node) {
-	// To be completed
+	// To be completed in a NEW MODULE
 	// REMEMBER: Can access clusterMatrix using node.property
 	// IDEA: Use drawGN.makeArrows to make completely new arrows using the aligned clusterMatrix.
 }
