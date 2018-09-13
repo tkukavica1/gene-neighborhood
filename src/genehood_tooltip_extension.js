@@ -43,7 +43,7 @@ function addTooltipButtons(tree, node) {
 			node.property('alignment', clusterOperations.runAlignment(node))
 			console.log(node.property('alignment'))
 			aligned.push(node.id())
-			clusterOperations.displayAlignmentResult(node, node.property('alignment').clusterMatrix)
+			clusterOperations.displayAlignmentResult(node)
 			d3.select(id)
 				.select('.tnt_node_display_elem')
 				.attr('fill', 'black')

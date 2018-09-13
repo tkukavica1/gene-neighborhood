@@ -195,7 +195,7 @@ function getHomologueIDs() {
 	return homologueIDs
 }
 
-function displayAlignmentResult(node, clusterMatrix) {
+function displayAlignmentResult(node) {
 	let leavesArr = node.get_all_leaves()
 	for (let i = 0; i < leavesArr.length; i++) {
 		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
@@ -211,6 +211,13 @@ function displayAlignmentResult(node, clusterMatrix) {
 			// Hiding the display of genes in the relevant cluster that are not involved in the alignment.
 		}
 	}
+	// Use node.property(...).clusterMatrix to access alignment result clusterMatrix
+}
+
+function buildLogo(node) {
+	// To be completed
+	// REMEMBER: Can access clusterMatrix using node.property
+	// IDEA: Use drawGN.makeArrows to make completely new arrows using the aligned clusterMatrix.
 }
 
 // Exporting functions for use in other files
