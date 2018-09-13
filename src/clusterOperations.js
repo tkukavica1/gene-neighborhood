@@ -171,6 +171,8 @@ function runAlignment(node) {
 				success = false
 			}
 		}
+		if (currentClusterObj.refStrand === '+')
+			currentRow.reverse()
 		clusterMatrix.push(currentRow)
 	}
 	return mgca.runMGCA(clusterMatrix)
@@ -210,8 +212,24 @@ function displayAlignmentResult(node) {
 				.style('display', 'none')
 			// Hiding the display of genes in the relevant cluster that are not involved in the alignment.
 		}
+		drawGap(currentClusterID, '.gene258', 100)
 	}
 	// Use node.property(...).clusterMatrix to access alignment result clusterMatrix
+}
+
+function drawGap(currentClusterID, precedingGeneClass, length) {
+	console.log(d3.select(currentClusterID).select(precedingGeneClass)
+		.node().getBBox())
+	d3.select(currentClusterID)
+		.insert('line', precedingGeneClass + ' *')
+		.attr('x1', d3.select(currentClusterID).select(precedingGeneClass)
+						.node().getBBox().x)
+		.attr('y1', 55 / 2)
+		.attr('x2', d3.select(currentClusterID).select(precedingGeneClass)
+				.node().getBBox().x + 50)
+		.attr('y2', 55 / 2)
+		.attr('stroke', 'black')
+		.attr('stroke-width', 3)
 }
 
 function buildLogo(node) {
