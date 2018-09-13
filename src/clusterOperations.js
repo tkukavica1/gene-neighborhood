@@ -205,7 +205,10 @@ function displayAlignmentResult(node, clusterMatrix) {
 		for (let j = 0; j < currentClusterObj.cluster.length; j++) {
 			let selection = d3.select(currentClusterID).select('.gene' + currentClusterObj.cluster[j])
 			if (selection.attr('alignID') === 'none')
-				selection.attr('opacity', 0.1)
+				selection.style('display', 'none')
+			d3.select(currentClusterID).selectAll('text')
+				.style('display', 'none')
+			// Hiding the display of genes in the relevant cluster that are not involved in the alignment.
 		}
 	}
 }
