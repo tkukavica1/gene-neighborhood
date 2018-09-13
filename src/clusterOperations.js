@@ -179,7 +179,7 @@ function runAlignment(node) {
 
 /**
  * Get function for the clusterIDs dictionary.
- * 
+ *
  * @returns The clusterIDs dictionary generated during most recent alignment
  */
 function getClusterIDs() {
@@ -188,13 +188,30 @@ function getClusterIDs() {
 
 /**
  * Get function for the homologueIDs dictionary
- * 
+ *
  * @returns The homologueIDs dictionary generated during most recent alignment
  */
 function getHomologueIDs() {
 	return homologueIDs
 }
 
+function displayAlignmentResult(node, clusterMatrix) {
+	let leavesArr = node.get_all_leaves()
+	for (let i = 0; i < leavesArr.length; i++) {
+		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
+		let currentClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+		let currentClusterNum = Number(currentClusterID.substring(3))
+		let currentClusterObj = drawGN.geneHoodObject.gns[currentClusterNum]
+		for (let j = 0; j < currentClusterObj.cluster.length; j++) {
+			let selection = d3.select(currentClusterID).select('.gene' + currentClusterObj.cluster[j])
+			if (selection.attr('alignID') === 'none')
+				selection.attr('opacity', 0.1)
+		}
+	}
+}
+
+// Exporting functions for use in other files
 exports.matchNodesAndClusters = matchNodesAndClusters
 exports.canAlign = canAlign
 exports.runAlignment = runAlignment
+exports.displayAlignmentResult = displayAlignmentResult
