@@ -212,14 +212,14 @@ function displayAlignmentResult(node) {
 				.style('display', 'none')
 			// Hiding the display of genes in the relevant cluster that are not involved in the alignment.
 		}
-		drawGap(currentClusterID, '.gene258', 100)
+		// drawGap(currentClusterID, '.gene258', 100)
 	}
 	// Use node.property(...).clusterMatrix to access alignment result clusterMatrix
 }
 
 function drawGap(currentClusterID, precedingGeneClass, length) {
-	console.log(d3.select(currentClusterID).select(precedingGeneClass)
-		.node().getBBox())
+	// console.log(d3.select(currentClusterID).select(precedingGeneClass)
+		//.node().getBBox())
 	d3.select(currentClusterID)
 		.insert('line', precedingGeneClass + ' *')
 		.attr('x1', d3.select(currentClusterID).select(precedingGeneClass)
