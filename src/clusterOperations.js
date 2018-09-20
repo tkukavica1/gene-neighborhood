@@ -199,53 +199,151 @@ function getHomologueIDs() {
 
 function displayAlignmentResult(node) {
 	let leavesArr = node.get_all_leaves()
-	for (let i = 0; i < leavesArr.length; i++) {
+	try {
+		for (let i = 0; i < leavesArr.length; i++) {
+			let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
+			let currentClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+			let currentClusterNum = Number(currentClusterID.substring(3))
+			let currentClusterObj = drawGN.geneHoodObject.gns[currentClusterNum]
+			for (let j = 0; j < currentClusterObj.cluster.length; j++) {
+				let selection = d3.select(currentClusterID).select('.gene' + currentClusterObj.cluster[j])
+				if (selection.attr('alignID') === 'none')
+					selection.style('display', 'none')
+				selection.attr('xTranslate', 0) // Easy access to x-component of translation
+				d3.select(currentClusterID).selectAll('text')
+					.style('display', 'none')
+				// Hiding the display of genes in the relevant cluster that are not involved in the alignment.
+			}
+			// drawGap(currentClusterID, '.gene258', 100)
+		}
+		let clusterMatrix = node.property('alignment').clusterMatrix
+		console.log(clusterMatrix)
+		console.log(drawGN.geneHoodObject)
+		console.log(clusterIDs)
+		console.log(homologueIDs)
+		for (let i = 0; i < leavesArr.length; i++) {
+			let clusterResult = clusterMatrix[i]
+			let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
+			let currentClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+			let currentClusterNum = Number(currentClusterID.substring(3))
+			let currentClusterObj = drawGN.geneHoodObject.gns[currentClusterNum]
+			let currentClusterRefID = clusterIDs[currentClusterObj.ref]
+			let index = 0
+			for (let j = 0; j < clusterResult.length; j++) {
+				if (clusterResult[j] === currentClusterRefID) {
+					index = j
+					break
+				}
+			}
+			for (let j = index + 1; j < clusterResult.length; j++) {
+				if (clusterResult[j] === '-') {
+					let addition = ''
+					if (clusterResult[j - 1] === '-')
+						addition = 'GAP'
+					else
+						addition = findPrecedingGene(currentClusterObj, clusterResult[j - 1])
+					drawGap(currentClusterID, '.gene' + addition, findLongestWidthInColumn(currentClusterID, leavesArr, clusterMatrix, j), 'right')
+					// NEED TO SHIFT OVER GENES
+				}
+			}
+			for (let j = index - 1; j >= 0; j--) {
+				if (clusterResult[j] === '-') {
+					let addition = ''
+					if (clusterResult[j + 1] === '-')
+						addition = 'GAP'
+					else
+						addition = findPrecedingGene(currentClusterObj, clusterResult[j + 1])
+					drawGap(currentClusterID, '.gene' + addition, findLongestWidthInColumn(currentClusterID, leavesArr, clusterMatrix, j), 'left')
+					// NEED TO SHIFT OVER GENES
+				}
+			}
+		}
+	}
+	catch (err) {
+		console.log('Failed to display alignment result.')
+	}
+}
+
+function findPrecedingGene(clusterObject, prevID) {
+	for (let key in clusterIDs) {
+		if (clusterIDs[key] === prevID) {
+			for (let i = 0; i < clusterObject.cluster.length; i++) {
+				if (clusterObject.cluster[i] === Number(key))
+					return Number(key)
+			}
+		}
+	}
+	console.log('Error: Could not find previous gene.')
+	return ''
+}
+
+function findLongestWidthInColumn(clusterID, leavesArr, clusterMatrix, index) {
+	let longestWidth = 0
+	for (let i = 0; i < clusterMatrix.length; i++) {
 		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
 		let currentClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
 		let currentClusterNum = Number(currentClusterID.substring(3))
 		let currentClusterObj = drawGN.geneHoodObject.gns[currentClusterNum]
-		for (let j = 0; j < currentClusterObj.cluster.length; j++) {
-			let selection = d3.select(currentClusterID).select('.gene' + currentClusterObj.cluster[j])
-			if (selection.attr('alignID') === 'none')
-				selection.style('display', 'none')
-			selection.attr('xTranslate', 0) // Easy access to x-component of translation
-			d3.select(currentClusterID).selectAll('text')
-				.style('display', 'none')
-			// Hiding the display of genes in the relevant cluster that are not involved in the alignment.
+		if (clusterMatrix[i][index] !== '-') {
+			let addition = findPrecedingGene(currentClusterObj, clusterMatrix[i][index])
+			if (d3.select(currentClusterID).select('.gene' + addition).node().getBBox().width > longestWidth)
+				longestWidth = d3.select(currentClusterID).select('.gene' + addition).node().getBBox().width
 		}
-		// drawGap(currentClusterID, '.gene258', 100)
 	}
-	let clusterMatrix = node.property('alignment').clusterMatrix
-	console.log(clusterMatrix)
-	// Use node.property(...).clusterMatrix to access alignment result clusterMatrix
+	return longestWidth
 }
 
-function drawGap(currentClusterID, precedingGeneClass, length) {
-	// console.log(d3.select(currentClusterID).select(precedingGeneClass)
-		//.node().getBBox())
-	let padding = 5 // Padding so gaps don't visually touch arrows
-	let longest = 50 // Needs to be set to longest in column
-	d3.select(currentClusterID)
-		.insert('line', precedingGeneClass + ' *')
-		.attr('x1', d3.select(currentClusterID).select(precedingGeneClass)
-						.node().getBBox().x + d3.select(currentClusterID).select(precedingGeneClass)
-						.node().getBBox().width + padding)
-		.attr('y1', d3.select(currentClusterID).select(precedingGeneClass)
-			.node()
-			.getBBox().y + d3.select(currentClusterID).select(precedingGeneClass)
-			.node()
-			.getBBox().height / 2)
-		.attr('x2', d3.select(currentClusterID).select(precedingGeneClass)
-				.node().getBBox().x + longest - padding) // 50 should be replaced by width attribute of longest arrow in resulting column
-		.attr('y2', d3.select(currentClusterID).select(precedingGeneClass)
-			.node()
-			.getBBox().y + d3.select(currentClusterID).select(precedingGeneClass)
-			.node()
-			.getBBox().height / 2)
-		.attr('stroke', 'black')
-		.attr('stroke-width', 3)
-	console.log(d3.select(currentClusterID).select(precedingGeneClass)
-	.node().getBBox())
+function drawGap(currentClusterID, precedingGeneClass, length, direction) {
+	let padding = 2 // Padding so gaps don't visually touch arrows
+	let gapOffset = 0
+	if (precedingGeneClass === '.geneGAP')
+		gapOffset += 2
+	if (direction === 'right') {
+		d3.select(currentClusterID)
+			.insert('line', precedingGeneClass + ' *')
+			.attr('x1', d3.select(currentClusterID).select(precedingGeneClass)
+							.node().getBBox().x + d3.select(currentClusterID).select(precedingGeneClass)
+							.node().getBBox().width + padding + gapOffset)
+			.attr('y1', d3.select(currentClusterID).select(precedingGeneClass)
+				.node()
+				.getBBox().y + d3.select(currentClusterID).select(precedingGeneClass)
+				.node()
+				.getBBox().height / 2)
+			.attr('x2', d3.select(currentClusterID).select(precedingGeneClass)
+					.node().getBBox().x + d3.select(currentClusterID).select(precedingGeneClass)
+					.node().getBBox().width + length - padding + gapOffset)
+			.attr('y2', d3.select(currentClusterID).select(precedingGeneClass)
+				.node()
+				.getBBox().y + d3.select(currentClusterID).select(precedingGeneClass)
+				.node()
+				.getBBox().height / 2)
+			.attr('stroke', 'black')
+			.attr('stroke-width', 3)
+			.attr('class', 'geneGAP')
+	}
+	else if (direction === 'left') {
+		d3.select(currentClusterID)
+			.insert('line', precedingGeneClass + ' *')
+			.attr('x1', d3.select(currentClusterID).select(precedingGeneClass)
+							.node().getBBox().x - padding - gapOffset)
+			.attr('y1', d3.select(currentClusterID).select(precedingGeneClass)
+				.node()
+				.getBBox().y + d3.select(currentClusterID).select(precedingGeneClass)
+				.node()
+				.getBBox().height / 2)
+			.attr('x2', d3.select(currentClusterID).select(precedingGeneClass)
+					.node().getBBox().x - length + padding - gapOffset)
+			.attr('y2', d3.select(currentClusterID).select(precedingGeneClass)
+				.node()
+				.getBBox().y + d3.select(currentClusterID).select(precedingGeneClass)
+				.node()
+				.getBBox().height / 2)
+			.attr('stroke', 'black')
+			.attr('stroke-width', 3)
+	}
+	else {
+		console.log('Error: Failed to draw gap because direction is not recognizable.')
+	}
 }
 
 function buildLogo(node) {
