@@ -208,34 +208,50 @@ function displayAlignmentResult(node) {
 			let selection = d3.select(currentClusterID).select('.gene' + currentClusterObj.cluster[j])
 			if (selection.attr('alignID') === 'none')
 				selection.style('display', 'none')
+			selection.attr('xTranslate', 0) // Easy access to x-component of translation
 			d3.select(currentClusterID).selectAll('text')
 				.style('display', 'none')
 			// Hiding the display of genes in the relevant cluster that are not involved in the alignment.
 		}
 		// drawGap(currentClusterID, '.gene258', 100)
 	}
+	let clusterMatrix = node.property('alignment').clusterMatrix
+	console.log(clusterMatrix)
 	// Use node.property(...).clusterMatrix to access alignment result clusterMatrix
 }
 
 function drawGap(currentClusterID, precedingGeneClass, length) {
 	// console.log(d3.select(currentClusterID).select(precedingGeneClass)
 		//.node().getBBox())
+	let padding = 5 // Padding so gaps don't visually touch arrows
+	let longest = 50 // Needs to be set to longest in column
 	d3.select(currentClusterID)
 		.insert('line', precedingGeneClass + ' *')
 		.attr('x1', d3.select(currentClusterID).select(precedingGeneClass)
-						.node().getBBox().x)
-		.attr('y1', 55 / 2)
+						.node().getBBox().x + d3.select(currentClusterID).select(precedingGeneClass)
+						.node().getBBox().width + padding)
+		.attr('y1', d3.select(currentClusterID).select(precedingGeneClass)
+			.node()
+			.getBBox().y + d3.select(currentClusterID).select(precedingGeneClass)
+			.node()
+			.getBBox().height / 2)
 		.attr('x2', d3.select(currentClusterID).select(precedingGeneClass)
-				.node().getBBox().x + 50)
-		.attr('y2', 55 / 2)
+				.node().getBBox().x + longest - padding) // 50 should be replaced by width attribute of longest arrow in resulting column
+		.attr('y2', d3.select(currentClusterID).select(precedingGeneClass)
+			.node()
+			.getBBox().y + d3.select(currentClusterID).select(precedingGeneClass)
+			.node()
+			.getBBox().height / 2)
 		.attr('stroke', 'black')
 		.attr('stroke-width', 3)
+	console.log(d3.select(currentClusterID).select(precedingGeneClass)
+	.node().getBBox())
 }
 
 function buildLogo(node) {
 	// To be completed in a NEW MODULE
 	// REMEMBER: Can access clusterMatrix using node.property
-	// IDEA: Use drawGN.makeArrows to make completely new arrows using the aligned clusterMatrix.
+	// IDEA: Use drawGN.makeArrows to make completely new arrows taking in the aligned clusterMatrix.
 }
 
 // Exporting functions for use in other files
