@@ -82,7 +82,36 @@ class DrawGN {
 			self.markHomologs(null)
 			// console.log(`markHomologs took ${performance.now() - t0} ms`)
 			self.unMarkHomologs()
+			self.changeCutOff(this.value)
+			d3.select('#evalueCutOffText')
+				.attr('value', this.value)
 		})
+		d3.select('#evalueCutOffText')
+			.on('change', function() {
+				self.changeCutOff(this.value)
+				d3.select('#evalueCutOff')
+					.attr('value', this.value)
+			})
+	}
+
+	changeCutOff(newValue) {
+		if (this.interactiveParams.selected && this.interactiveParams.currentEvalue > newValue) {
+			this.svg.selectAll('.arrow')
+				.filter((geneIndex) => {
+					const gene = this.geneHoodObject.getGene(geneIndex)
+					return gene.groups.getLastGroupTag() === this.interactiveParams.currentGroupTag
+				})
+				.each((geneIndex) => {
+					const gene = this.geneHoodObject.getGene(geneIndex)
+					gene.groups.popGroup()
+				})
+		}
+		this.interactiveParams.currentEvalue = newValue
+		this.interactiveParams.searched.clear()
+		const t0 = performance.now()
+		this.markHomologs(null)
+		console.log(`markHomologs took ${performance.now() - t0} ms`)
+		this.unMarkHomologs()
 	}
 
 
@@ -110,12 +139,25 @@ class DrawGN {
 		else
 			self.xDom.range([this.width, 0])
 
+/* 		for (let k = currentNodeIndex + 1; k <= 1000000000; k++) {
+			if (d3.select('#tnt_tree_node_treeBox_' + k).attr('class') === 'leaf tnt_tree_node') {
+				currentNodeIndex = k
+				break
+			}
+		} */
+
+		let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
+
 		const genes = self.svg.append('g')
 			.attr('class', 'geneCluster')
 			.attr('id', `GN${i}`)
 			.attr('transform', `translate (0, ${self.params.padding + i * (self.params.arrowThickness + self.params.paddingBetweenArrows)})`)
 			.selectAll('.geneCluster')
 			.data(geneCluster.cluster)
+
+/* 		d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
+			.attr('leafIndex', currentLeafIndex)
+		currentLeafIndex++ */
 
 		genes.enter()
 			.append('path')
