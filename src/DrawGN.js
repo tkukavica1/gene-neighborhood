@@ -141,6 +141,7 @@ class DrawGN {
 				// return gene.groups.getLastGroupColor()
 			})
 			.attr('alignID', 'none')
+			.attr('shift-x', 0)
 			.on('click', (geneIndex) => {
 				const t0 = performance.now()
 				self.interactiveParams.searched.clear()
@@ -200,7 +201,7 @@ class DrawGN {
 				}
 			}
 			let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
-			d3.select(`#GN${i}`).attr('correspondingNodeID', corrNodeID)
+			d3.select(`#GN${i}`).attr('correspondingNodeID', corrNodeID)							
 			d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
 		}
 	}

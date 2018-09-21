@@ -41,6 +41,7 @@ function addTooltipButtons(tree, node) {
 	else {
 		alignButton.on('click', function() {
 			node.property('alignment', clusterOperations.runAlignment(node))
+			console.log(node.property('alignment'))
 			aligned.push(node.id())
 			clusterOperations.displayAlignmentResult(node)
 			d3.select(id)
