@@ -176,8 +176,6 @@ function runAlignment(node) {
 			currentRow.reverse()
 		clusterMatrix.push(currentRow)
 	}
-	console.log('Reached here')
-	console.log(clusterMatrix)
 	return mgca.runMGCA(clusterMatrix)
 	// Need to store clusterIDs somehow!
 }
@@ -217,13 +215,12 @@ function displayAlignmentResult(node) {
 					.style('display', 'none')
 				// Hiding the display of genes in the relevant cluster that are not involved in the alignment.
 			}
-			// drawGap(currentClusterID, '.gene258', 100)
 		}
 		let clusterMatrix = node.property('alignment').clusterMatrix
-		console.log(clusterMatrix)
-		console.log(drawGN.geneHoodObject)
-		console.log(clusterIDs)
-		console.log(homologueIDs)
+		// console.log(clusterMatrix)
+		// console.log(drawGN.geneHoodObject)
+		// console.log(clusterIDs)
+		// console.log(homologueIDs)
 		for (let i = 0; i < leavesArr.length; i++) {
 			let clusterResult = clusterMatrix[i]
 			let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
@@ -246,7 +243,6 @@ function displayAlignmentResult(node) {
 					else
 						addition = findPrecedingGene(currentClusterObj, clusterResult[j - 1])
 					let shiftWidth = drawGap(currentClusterID, '.gene' + addition, findLongestWidthInColumn(currentClusterID, leavesArr, clusterMatrix, j), 'right')
-					// NEED TO SHIFT OVER GENES
 					shiftGenesRight(currentClusterNum, clusterResult, j, shiftWidth)
 				}
 			}
@@ -258,7 +254,6 @@ function displayAlignmentResult(node) {
 					else
 						addition = findPrecedingGene(currentClusterObj, clusterResult[j + 1])
 					let shiftWidth = drawGap(currentClusterID, '.gene' + addition, findLongestWidthInColumn(currentClusterID, leavesArr, clusterMatrix, j), 'left')
-					// NEED TO SHIFT OVER GENES
 					shiftGenesLeft(currentClusterNum, clusterResult, j, shiftWidth)
 				}
 			}
@@ -316,6 +311,14 @@ function findLongestWidthInColumn(clusterID, leavesArr, clusterMatrix, index) {
 	return longestWidth
 }
 
+/**
+ * Shifts genes to the right (should be called each time a new gap is created).
+ *
+ * @param {any} currentClusterNum The current gene cluster number.
+ * @param {any} clusterResult The relevant array from MGCA clusterMatrix for this cluster.
+ * @param {any} index The index after which all genes should be shifted right.
+ * @param {any} shiftWidth The width of the shift.
+ */
 function shiftGenesRight(currentClusterNum, clusterResult, index, shiftWidth) {
 	for (let i = index + 1; i < clusterResult.length; i++) {
 		if (clusterResult[i] !== '-') {
@@ -332,6 +335,14 @@ function shiftGenesRight(currentClusterNum, clusterResult, index, shiftWidth) {
 	}
 }
 
+/**
+ * Shifts genes to the left (should be called each time a new gap is created).
+ *
+ * @param {any} currentClusterNum The current gene cluster number.
+ * @param {any} clusterResult The relevant array from MGCA clusterMatrix for this cluster.
+ * @param {any} index The index after which all genes should be shifted left.
+ * @param {any} shiftWidth The width of the shift.
+ */
 function shiftGenesLeft(currentClusterNum, clusterResult, index, shiftWidth) {
 	for (let i = index - 1; i >= 0; i--) {
 		if (clusterResult[i] !== '-') {
@@ -342,7 +353,6 @@ function shiftGenesLeft(currentClusterNum, clusterResult, index, shiftWidth) {
 			d3.select('#GN' + currentClusterNum)
 				.select('.gene' + findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i]))
 				.attr('shift-x', newX)
-			console.log(newX)
 			d3.select('#GN' + currentClusterNum)
 				.select('.gene' + findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i]))
 				.attr('transform', 'translate(' + newX + ', 0)')
@@ -389,8 +399,6 @@ function drawGap(currentClusterID, precedingGeneClass, length, direction) {
 			.attr('stroke-width', 3)
 			.attr('class', 'geneGAP')
 		gapCounter++
-		console.log(d3.select('#gap' + (gapCounter - 1)).node()
-		.getBBox().width)
 		return d3.select('#gap' + (gapCounter - 1)).node()
 				.getBBox().width + padding * 2
 	}
