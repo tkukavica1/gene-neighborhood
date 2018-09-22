@@ -218,7 +218,7 @@ class DrawGN {
 	/**
 	 * Helper function that assigns HTML properties to link nodes and clusters one-to-one based on matching loci.
 	 */
-	assignClusterAndNodeIDS() {
+	assignClusterAndNodeIDS(root) {
 		let locus = ''
 		for (let i = 0; i < this.geneHoodObject.gns.length; i++) {
 			locus = this.geneHoodObject.genes[this.geneHoodObject.gns[i].ref].locus
@@ -232,8 +232,14 @@ class DrawGN {
 				}
 			}
 			let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
-			d3.select(`#GN${i}`).attr('correspondingNodeID', corrNodeID)							
+			d3.select(`#GN${i}`).attr('correspondingNodeID', corrNodeID)
 			d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
+		}
+		let leavesArr = root.get_all_leaves()
+		for (let i = 0; i < leavesArr.length; i++) {
+			// Setting internal attributes
+			leavesArr[i].property('leafIndex', i + 1)
+			leavesArr[i].property('correspondingClusterID', '#GN' + i)
 		}
 	}
 

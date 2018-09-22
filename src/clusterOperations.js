@@ -512,10 +512,11 @@ function buildLogo(node) {
 
 /**
  * Unhides the hidden clusters under a given node.
- * 
+ *
  * @param {any} node The node whose sub-clusters are to be re-displayed.
  */
 function unhideClusters(node) {
+	let leavesArr = node.get_all_leaves()
 	for (let i = 0; i < leavesArr.length; i++) {
 		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
 		let corrClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
