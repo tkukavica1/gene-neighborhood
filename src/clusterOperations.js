@@ -478,7 +478,6 @@ function turnOffAndResetClusters(node) {
 		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
 		let corrClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
 		d3.select(corrClusterID).style('display', 'none') // Hiding collapsed clusters on the SVG for now
-		let removedSuccess = true
 		for (let j = 0; j < 100; j++) {
 			// Removing all gaps
 			d3.select(corrClusterID).select('line')
@@ -511,6 +510,18 @@ function buildLogo(node) {
 	// IDEA: Use drawGN.makeArrows to make completely new arrows taking in the aligned clusterMatrix.
 }
 
+/**
+ * Unhides the hidden clusters under a given node.
+ * 
+ * @param {any} node The node whose sub-clusters are to be re-displayed.
+ */
+function unhideClusters(node) {
+	for (let i = 0; i < leavesArr.length; i++) {
+		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
+		let corrClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+		d3.select(corrClusterID).style('display', 'block') // Hiding collapsed clusters on the SVG for now
+}
+
 // Exporting functions for use in other files
 exports.matchNodesAndClusters = matchNodesAndClusters
 exports.firstMatchNodesAndClusters = firstMatchNodesAndClusters
@@ -518,3 +529,4 @@ exports.canAlign = canAlign
 exports.runAlignment = runAlignment
 exports.displayAlignmentResult = displayAlignmentResult
 exports.generateLogo = generateLogo
+exports.unhideClusters = unhideClusters
