@@ -520,6 +520,7 @@ function unhideClusters(node) {
 		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
 		let corrClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
 		d3.select(corrClusterID).style('display', 'block') // Hiding collapsed clusters on the SVG for now
+	}
 }
 
 // Exporting functions for use in other files
