@@ -67,13 +67,16 @@ function addTooltipButtons(tree, node) {
 	}
 	else {
 		collapseButton.on('click', function() {
-			treeOperations.toggleNodeProperty(node)
 			if (!node.is_collapsed()) {
+				clusterOperations.generateLogo(node)
+			}
+			else if (node.is_collapsed()) {
 				for (let i = 0; i < aligned.length; i++) {
 					if (aligned[i] === node.id())
 						aligned.splice(i, 1) // Removes from aligned nodes, since no longer aligned and modifications may be made
 				}
 			}
+			treeOperations.toggleNodeProperty(node)
 			treeOperations.updateUserChanges(tree)
 			d3.select(id)
 				.select('.tnt_node_display_elem')

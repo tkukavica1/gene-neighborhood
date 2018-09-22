@@ -344,14 +344,15 @@ function findLongestWidthInColumn(clusterID, leavesArr, clusterMatrix, index) {
 function shiftGenesRight(currentClusterNum, clusterResult, index, shiftWidth) {
 	for (let i = index + 1; i < clusterResult.length; i++) {
 		if (clusterResult[i] !== '-') {
+			let precedingGene = findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i])
 			let currentTranslate = d3.select('#GN' + currentClusterNum)
-				.select('.gene' + findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i]))
+				.select('.gene' + precedingGene)
 				.attr('shift-x')
 			let newX = d3.select('#GN' + currentClusterNum)
-				.select('.gene' + findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i]))
+				.select('.gene' + precedingGene)
 				.attr('shift-x', currentTranslate + shiftWidth)
 			d3.select('#GN' + currentClusterNum)
-				.select('.gene' + findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i]))
+				.select('.gene' + precedingGene)
 				.attr('transform', 'translate(' + newX + ', 0)')
 		}
 	}
@@ -368,15 +369,16 @@ function shiftGenesRight(currentClusterNum, clusterResult, index, shiftWidth) {
 function shiftGenesLeft(currentClusterNum, clusterResult, index, shiftWidth) {
 	for (let i = index - 1; i >= 0; i--) {
 		if (clusterResult[i] !== '-') {
+			let precedingGene = findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i])
 			let currentTranslate = d3.select('#GN' + currentClusterNum)
-				.select('.gene' + findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i]))
+				.select('.gene' + precedingGene)
 				.attr('shift-x')
 			let newX = currentTranslate - shiftWidth
 			d3.select('#GN' + currentClusterNum)
-				.select('.gene' + findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i]))
+				.select('.gene' + precedingGene)
 				.attr('shift-x', newX)
 			d3.select('#GN' + currentClusterNum)
-				.select('.gene' + findPrecedingGene(drawGN.geneHoodObject.gns[currentClusterNum], clusterResult[i]))
+				.select('.gene' + precedingGene)
 				.attr('transform', 'translate(' + newX + ', 0)')
 		}
 	}
@@ -454,6 +456,55 @@ function drawGap(currentClusterID, precedingGeneClass, length, direction) {
 	}
 }
 
+/**
+ * Generates gene cluster logo and modifies SVG display accordingly.
+ * 
+ * @param {any} node The node for whose alignment the gene cluster logo is to be created.
+ */
+function generateLogo(node) {
+	turnOffAndResetClusters(node)
+	buildLogo(node)
+	// Need to remake leaf indices so clusters follow accordingly
+}
+
+/**
+ * Sets display to hidden, deletes gaps, and resets transforms of all clusters corresponding to leaves of the passed node.
+ *
+ * @param {any} node The parent node of the affected subtree.
+ */
+function turnOffAndResetClusters(node) {
+	let leavesArr = node.get_all_leaves()
+	for (let i = 0; i < leavesArr.length; i++) {
+		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
+		let corrClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+		d3.select(corrClusterID).style('display', 'none') // Hiding collapsed clusters on the SVG for now
+		let removedSuccess = true
+		for (let j = 0; j < 100; j++) {
+			// Removing all gaps
+			d3.select(corrClusterID).select('line')
+				.remove()
+		}
+		// Next, resetting all shift-x to 0 and translates to 0
+		let clusterMatrix = node.property('alignment').clusterMatrix
+		for (let i = 0; i < clusterMatrix.length; i++) {
+			for (let j = 0; j < clusterMatrix[i].length; j++) {
+				currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
+				let currClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+				let currClusterNum = Number(currClusterID.substring(3))
+				if (clusterMatrix[i][j] !== '-') {
+					let precedingGene = findPrecedingGene(drawGN.geneHoodObject.gns[currClusterNum], clusterMatrix[i][j])
+					d3.select('#GN' + currClusterNum)
+						.select('.gene' + precedingGene)
+						.attr('shift-x', 0)
+					d3.select('#GN' + currClusterNum)
+						.select('.gene' + precedingGene)
+						.attr('transform', 'translate(0, 0)')
+				}
+			}
+		}
+	}
+}
+
 function buildLogo(node) {
 	// To be completed
 	// REMEMBER: Can access clusterMatrix using node.property
@@ -466,3 +517,4 @@ exports.firstMatchNodesAndClusters = firstMatchNodesAndClusters
 exports.canAlign = canAlign
 exports.runAlignment = runAlignment
 exports.displayAlignmentResult = displayAlignmentResult
+exports.generateLogo = generateLogo
