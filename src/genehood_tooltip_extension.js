@@ -5,6 +5,7 @@ const d3 = require('d3'),
 	phylogician = require('phylogician'),
 	treeOperations = phylogician.treeOperations,
 	clusterOperations = require('./clusterOperations.js'),
+	logoBuild = require('./logo_builder.js'),
 	tntTooltip = phylogician.tntTooltip,
 	tooltipWidth = 120,
 	colSpan = 2,
@@ -41,7 +42,6 @@ function addTooltipButtons(tree, node) {
 	else {
 		alignButton.on('click', function() {
 			node.property('alignment', clusterOperations.runAlignment(node))
-			console.log(node.property('alignment'))
 			aligned.push(node.id())
 			clusterOperations.displayAlignmentResult(node)
 			d3.select(id)
@@ -68,7 +68,7 @@ function addTooltipButtons(tree, node) {
 	else {
 		collapseButton.on('click', function() {
 			if (!node.is_collapsed()) {
-				clusterOperations.generateLogo(node)
+				clusterOperations.prepareGenerateLogo(node)
 			}
 			else if (node.is_collapsed()) {
 				for (let i = 0; i < aligned.length; i++) {
@@ -79,6 +79,9 @@ function addTooltipButtons(tree, node) {
 			}
 			treeOperations.toggleNodeProperty(node)
 			treeOperations.updateUserChanges(tree)
+			console.log(node.data())
+			if (node.is_collapsed())
+				logoBuild.buildLogo(node)
 			d3.select(id)
 				.select('.tnt_node_display_elem')
 				.attr('fill', 'black')

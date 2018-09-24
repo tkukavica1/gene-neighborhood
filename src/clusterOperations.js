@@ -461,9 +461,8 @@ function drawGap(currentClusterID, precedingGeneClass, length, direction) {
  * 
  * @param {any} node The node for whose alignment the gene cluster logo is to be created.
  */
-function generateLogo(node) {
+function prepareGenerateLogo(node) {
 	turnOffAndResetClusters(node)
-	buildLogo(node)
 	// Need to remake leaf indices so clusters follow accordingly
 }
 
@@ -504,12 +503,6 @@ function turnOffAndResetClusters(node) {
 	}
 }
 
-function buildLogo(node) {
-	// To be completed
-	// REMEMBER: Can access clusterMatrix using node.property
-	// IDEA: Use drawGN.makeArrows to make completely new arrows taking in the aligned clusterMatrix.
-}
-
 /**
  * Unhides the hidden clusters under a given node.
  *
@@ -530,5 +523,5 @@ exports.firstMatchNodesAndClusters = firstMatchNodesAndClusters
 exports.canAlign = canAlign
 exports.runAlignment = runAlignment
 exports.displayAlignmentResult = displayAlignmentResult
-exports.generateLogo = generateLogo
+exports.prepareGenerateLogo = prepareGenerateLogo
 exports.unhideClusters = unhideClusters

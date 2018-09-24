@@ -234,12 +234,15 @@ class DrawGN {
 			let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
 			d3.select(`#GN${i}`).attr('correspondingNodeID', corrNodeID)
 			d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
-		}
-		let leavesArr = root.get_all_leaves()
-		for (let i = 0; i < leavesArr.length; i++) {
 			// Setting internal attributes
-			leavesArr[i].property('leafIndex', i + 1)
-			leavesArr[i].property('correspondingClusterID', '#GN' + i)
+			let leavesArr = root.get_all_leaves()
+			for (let j = 0; j < leavesArr.length; j++) {
+				// Need a new for loop here because leavesArr is not in the same order as seen in the visualization.
+				if (leavesArr[j].property('_id') === currentNodeIndex) {
+					leavesArr[j].property('leafIndex', j + 1)
+					leavesArr[j].property('correspondingClusterID', '#GN' + i)
+				}
+			}
 		}
 	}
 
