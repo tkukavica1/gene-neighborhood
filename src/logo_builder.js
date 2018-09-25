@@ -10,6 +10,7 @@ function buildLogo(node) {
 		let nodeYTransform = parseTransform(nodeID)
 		let logoID = 'clusterLogo' + node.property('_id')
 		let clusterYTransform = nodeYTransform - 22.5
+		let clusterMatrix = node.property('alignment').clusterMatrix
 		// Building div that will hold the cluster logo.
 		d3.select('.geneHoodArea').append('g')
 			.attr('class', 'clusterLogo')
@@ -18,10 +19,21 @@ function buildLogo(node) {
 			.attr('correspondingNodeID', nodeID)
 		let instructionArr = buildInstructionArray(node)
 		console.log(instructionArr)
-		makeTestLines('#' + logoID, node, 1)
-		makeRightArrow('#' + logoID, 0, 10, 12.5, instructionArr[0].length, 1, 'red')
-		makeRightArrow('#' + logoID, 0, 10 + 12.5, 12.5, instructionArr[0].length, 1, 'blue')
+		let xIndex = 0
+		for (let i = 0; i < instructionArr.length; i++) {
+			let yIndex = 35
+			let thisLen = instructionArr[i].length
+			for (let key in instructionArr[i]) {
+				if (key !== 'length') {
+					let height = 25 * instructionArr[i][key] / clusterMatrix.length
+					makeRightArrow('#' + logoID, xIndex, yIndex - height, height, thisLen, Number(key), 'red')
+					yIndex -= height
+				}
+			}
+			xIndex += thisLen
+		}
 	}, 500)
+	console.log(clusterOperations.getGHObject())
 }
 
 function makeRightArrow(logoID, x, y, h, width, geneGroupNum, color) {
@@ -33,6 +45,7 @@ function makeRightArrow(logoID, x, y, h, width, geneGroupNum, color) {
 	let pt6 = (x + width * 8 / 11) + ',' + (y + h - h / 5)
 	let pt7 = x + ',' + (y + h - h / 5)
 	let instructions = 'M' + pt1 + 'L' + pt2 + 'L' + pt3 + 'L' + pt4 + 'L' + pt5 + 'L' + pt6 + 'L' + pt7 + 'L' + pt1
+	console.log(instructions)
 	d3.select(logoID).append('path')
 		.attr('class', 'arrow group' + geneGroupNum)
 		.attr('stroke', 'black')
@@ -40,25 +53,7 @@ function makeRightArrow(logoID, x, y, h, width, geneGroupNum, color) {
 		.attr('fill', color)
 		.attr('d', instructions)
 }
-
-function makeTestLines(logoID, node, geneGroupNumber) {
-	let instructions = 'M0,15L100,15'
-	d3.select(logoID).append('path')
-		.attr('class', 'arrow group' + geneGroupNumber)
-		.attr('d', instructions)
-		.attr('stroke', 'black')
-		.attr('stroke-width', 1)
-		.attr('fill', 'red')
-	instructions = 'M0,40L100,40'
-	d3.select(logoID).append('path')
-		.attr('class', 'arrow group' + geneGroupNumber)
-		.attr('d', instructions)
-		.attr('stroke', 'black')
-		.attr('stroke-width', 1)
-		.attr('fill', 'red')
-	console.log(node.property('_children')[0])
-	console.log(clusterOperations.getGHObject())
-}
+	// console.log(node.property('_children')[0])
 
 /**
  * Parses the transform of a given node to find its y transform attribute.
