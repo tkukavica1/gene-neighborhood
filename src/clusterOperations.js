@@ -518,9 +518,14 @@ function turnOffAndResetClusters(node) {
 function unhideClusters(node) {
 	let leavesArr = node.get_all_leaves()
 	for (let i = 0; i < leavesArr.length; i++) {
-		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
-		let corrClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
-		d3.select(corrClusterID).style('display', 'block') // Hiding collapsed clusters on the SVG for now
+		let currClusterID = leavesArr[i].property('correspondingClusterID')
+		let currClusterNum = Number(currClusterID.substring(3))
+		let currClusterObj = drawGN.geneHoodObject.gns[currClusterNum].cluster
+		for (let j = 0; j < currClusterObj.length; j++) {
+			d3.select(currClusterID).select('.gene' + currClusterObj[j])
+				.style('display', 'block')
+		}
+		d3.select(currClusterID).style('display', 'block')
 	}
 }
 

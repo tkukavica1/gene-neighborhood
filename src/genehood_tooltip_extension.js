@@ -71,18 +71,21 @@ function addTooltipButtons(tree, node) {
 			if (!node.is_collapsed()) {
 				logoXTransform = clusterOperations.prepareGenerateLogo(node)
 			}
-			else if (node.is_collapsed()) {
+			/* else if (node.is_collapsed()) {
 				for (let i = 0; i < aligned.length; i++) {
 					if (aligned[i] === node.id())
 						aligned.splice(i, 1) // Removes from aligned nodes, since no longer aligned and modifications may be made
 				}
-				clusterOperations.unhideClusters(node) // Need to assign corrClusterIDs as an attribute first
-			}
+			} */
 			treeOperations.toggleNodeProperty(node)
 			treeOperations.updateUserChanges(tree)
-			console.log(node.data())
-			if (node.is_collapsed())
+			if (node.is_collapsed()) {
 				logoBuild.buildLogo(node, logoXTransform)
+			}
+			else if (!node.is_collapsed()) {
+				clusterOperations.unhideClusters(node)
+				logoBuild.removeLogo(node.property('_id'))
+			}
 			d3.select(id)
 				.select('.tnt_node_display_elem')
 				.attr('fill', 'black')

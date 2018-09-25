@@ -151,4 +151,14 @@ function buildInstructionArray(node) {
 	return instructionArr
 }
 
+/**
+ * Removes the cluster logo associated with the provided node ID.
+ *
+ * @param {any} nodeID The node whose cluster logo is to be removed.
+ */
+function removeLogo(nodeID) {
+	d3.select('#clusterLogo' + nodeID).remove()
+}
+
 exports.buildLogo = buildLogo
+exports.removeLogo = removeLogo
