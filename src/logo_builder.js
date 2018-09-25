@@ -42,7 +42,6 @@ function buildLogo(node, logoXTransform) {
 			}
 			xIndex += thisLen
 		}
-		console.log(d3.select('.gene258').node().getBBox().x)
 	}, 500)
 	console.log(clusterOperations.getGHObject())
 }
@@ -124,8 +123,6 @@ function buildWidthDictionary(clusterMatrix) {
 function buildInstructionArray(node) {
 	let widthDictionary = buildWidthDictionary(node.property('alignment').clusterMatrix)
 	let clusterMatrix = node.property('alignment').clusterMatrix
-	console.log(clusterMatrix)
-	console.log(widthDictionary)
 	let instructionArr = []
 	for (let i = 0; i < clusterMatrix[0].length; i++) {
 		let dict = {}
