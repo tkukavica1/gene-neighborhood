@@ -82,7 +82,36 @@ class DrawGN {
 			self.markHomologs(null)
 			// console.log(`markHomologs took ${performance.now() - t0} ms`)
 			self.unMarkHomologs()
+			self.changeCutOff(this.value)
+			d3.select('#evalueCutOffText')
+				.attr('value', this.value)
 		})
+		d3.select('#evalueCutOffText')
+			.on('change', function() {
+				self.changeCutOff(this.value)
+				d3.select('#evalueCutOff')
+					.attr('value', this.value)
+			})
+	}
+
+	changeCutOff(newValue) {
+		if (this.interactiveParams.selected && this.interactiveParams.currentEvalue > newValue) {
+			this.svg.selectAll('.arrow')
+				.filter((geneIndex) => {
+					const gene = this.geneHoodObject.getGene(geneIndex)
+					return gene.groups.getLastGroupTag() === this.interactiveParams.currentGroupTag
+				})
+				.each((geneIndex) => {
+					const gene = this.geneHoodObject.getGene(geneIndex)
+					gene.groups.popGroup()
+				})
+		}
+		this.interactiveParams.currentEvalue = newValue
+		this.interactiveParams.searched.clear()
+		const t0 = performance.now()
+		this.markHomologs(null)
+		// console.log(`markHomologs took ${performance.now() - t0} ms`)
+		this.unMarkHomologs()
 	}
 
 
@@ -109,6 +138,8 @@ class DrawGN {
 			self.xDom.range([0, this.width])
 		else
 			self.xDom.range([this.width, 0])
+
+		let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
 
 		const genes = self.svg.append('g')
 			.attr('class', 'geneCluster')
@@ -187,7 +218,7 @@ class DrawGN {
 	/**
 	 * Helper function that assigns HTML properties to link nodes and clusters one-to-one based on matching loci.
 	 */
-	assignClusterAndNodeIDS() {
+	assignClusterAndNodeIDS(root) {
 		let locus = ''
 		for (let i = 0; i < this.geneHoodObject.gns.length; i++) {
 			locus = this.geneHoodObject.genes[this.geneHoodObject.gns[i].ref].locus
@@ -201,8 +232,17 @@ class DrawGN {
 				}
 			}
 			let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
-			d3.select(`#GN${i}`).attr('correspondingNodeID', corrNodeID)							
+			d3.select(`#GN${i}`).attr('correspondingNodeID', corrNodeID)
 			d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
+			// Setting internal attributes
+			let leavesArr = root.get_all_leaves()
+			for (let j = 0; j < leavesArr.length; j++) {
+				// Need a new for loop here because leavesArr is not in the same order as seen in the visualization.
+				if (leavesArr[j].property('_id') === currentNodeIndex) {
+					leavesArr[j].property('leafIndex', j + 1)
+					leavesArr[j].property('correspondingClusterID', '#GN' + i)
+				}
+			}
 		}
 	}
 

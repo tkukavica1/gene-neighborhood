@@ -5,6 +5,7 @@ const d3 = require('d3'),
 	phylogician = require('phylogician'),
 	treeOperations = phylogician.treeOperations,
 	clusterOperations = require('./clusterOperations.js'),
+	logoBuild = require('./logo_builder.js'),
 	tntTooltip = phylogician.tntTooltip,
 	tooltipWidth = 120,
 	colSpan = 2,
@@ -41,7 +42,6 @@ function addTooltipButtons(tree, node) {
 	else {
 		alignButton.on('click', function() {
 			node.property('alignment', clusterOperations.runAlignment(node))
-			console.log(node.property('alignment'))
 			aligned.push(node.id())
 			clusterOperations.displayAlignmentResult(node)
 			d3.select(id)
@@ -67,14 +67,25 @@ function addTooltipButtons(tree, node) {
 	}
 	else {
 		collapseButton.on('click', function() {
-			treeOperations.toggleNodeProperty(node)
+			let logoXTransform = 0
 			if (!node.is_collapsed()) {
+				logoXTransform = clusterOperations.prepareGenerateLogo(node)
+			}
+			/* else if (node.is_collapsed()) {
 				for (let i = 0; i < aligned.length; i++) {
 					if (aligned[i] === node.id())
 						aligned.splice(i, 1) // Removes from aligned nodes, since no longer aligned and modifications may be made
 				}
-			}
+			} */
+			treeOperations.toggleNodeProperty(node)
 			treeOperations.updateUserChanges(tree)
+			if (node.is_collapsed()) {
+				logoBuild.buildLogo(node, logoXTransform)
+			}
+			else if (!node.is_collapsed()) {
+				clusterOperations.unhideClusters(node)
+				logoBuild.removeLogo(node.property('_id'))
+			}
 			d3.select(id)
 				.select('.tnt_node_display_elem')
 				.attr('fill', 'black')
