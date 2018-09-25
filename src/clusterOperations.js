@@ -472,7 +472,6 @@ function prepareGenerateLogo(node) {
 	let xTransform = d3.select('.gene' + refGene).node()
 		.getBBox().x
 	// Need to remake leaf indices so clusters follow accordingly
-	console.log([xTransform, clusterIDs[String(refGene)]])
 	return [xTransform, clusterIDs[String(refGene)]]
 }
 

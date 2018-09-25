@@ -4,6 +4,12 @@
 const d3 = require('d3'),
 	clusterOperations = require('./clusterOperations')
 
+/**
+ * Build a gene cluster logo for the subtree of the provided node.
+ *
+ * @param {any} node The node for which the cluster logo will be generated.
+ * @param {any} logoXTransformArr 2-element array with translation instructions for the cluster logo to be generated.
+ */
 function buildLogo(node, logoXTransformArr) {
 	setTimeout(function() {
 		let nodeID = '#tnt_tree_node_treeBox_' + node.property('_id')
@@ -47,9 +53,19 @@ function buildLogo(node, logoXTransformArr) {
 		}
 		d3.select('#' + logoID).attr('transform', 'translate(' + xTranslate + ', ' + clusterYTransform + ')')
 	}, 500)
-	console.log(clusterOperations.getGHObject())
 }
 
+/**
+ * Makes an arrow in the right direction.
+ *
+ * @param {any} logoID SVG ID of the cluster logo under which this arrow will be.
+ * @param {any} x The x-coordinate of the starting point (upper left).
+ * @param {any} y The y-coordinate of the starting point (upper left).
+ * @param {any} h The height of the arrow.
+ * @param {any} width The width of the arrow.
+ * @param {any} geneGroupNum The number of the gene group that this arrow represents.
+ * @param {any} color The color of the arrow (hex value).
+ */
 function makeRightArrow(logoID, x, y, h, width, geneGroupNum, color) {
 	let pt1 = x + ',' + (y + h / 5)
 	let pt2 = (x + width * 8 / 11) + ',' + (y + h / 5)
@@ -66,7 +82,6 @@ function makeRightArrow(logoID, x, y, h, width, geneGroupNum, color) {
 		.attr('fill', color)
 		.attr('d', instructions)
 }
-	// console.log(node.property('_children')[0])
 
 /**
  * Parses the transform of a given node to find its y transform attribute.
@@ -124,6 +139,14 @@ function buildWidthDictionary(clusterMatrix) {
 	return widthDict
 }
 
+/**
+ * Generates an instruction array so that a logo can be created for the provided node.
+ *
+ * @param {any} node The node for which the instruction array will be generated.
+ *
+ * @returns An array where each element is a dictionary consisting of gene IDs and occurrence frequency
+ * 			in each column of the MGCA-generated result matrix.
+ */
 function buildInstructionArray(node) {
 	let widthDictionary = buildWidthDictionary(node.property('alignment').clusterMatrix)
 	let clusterMatrix = node.property('alignment').clusterMatrix
