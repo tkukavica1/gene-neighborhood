@@ -458,7 +458,7 @@ function drawGap(currentClusterID, precedingGeneClass, length, direction) {
 
 /**
  * Generates gene cluster logo and modifies SVG display accordingly.
- * 
+ *
  * @param {any} node The node for whose alignment the gene cluster logo is to be created.
  */
 function prepareGenerateLogo(node) {
@@ -517,6 +517,10 @@ function unhideClusters(node) {
 	}
 }
 
+function getGHObject() {
+	return drawGN.geneHoodObject
+}
+
 // Exporting functions for use in other files
 exports.matchNodesAndClusters = matchNodesAndClusters
 exports.firstMatchNodesAndClusters = firstMatchNodesAndClusters
@@ -525,3 +529,5 @@ exports.runAlignment = runAlignment
 exports.displayAlignmentResult = displayAlignmentResult
 exports.prepareGenerateLogo = prepareGenerateLogo
 exports.unhideClusters = unhideClusters
+exports.getGHObject = getGHObject
+exports.getClusterIDs = getClusterIDs
