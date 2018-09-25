@@ -16,14 +16,40 @@ function buildLogo(node) {
 			.attr('id', logoID)
 			.attr('transform', 'translate(0, ' + clusterYTransform + ')')
 			.attr('correspondingNodeID', nodeID)
-		let widthDictionary = buildWidthDictionary(node.property('alignment').clusterMatrix)
-		console.log(widthDictionary)
-		makeArrow('#' + logoID, node, 1)
+		let instructionArr = buildInstructionArray(node)
+		console.log(instructionArr)
+		makeTestLines('#' + logoID, node, 1)
+		makeRightArrow('#' + logoID, 0, 10, 12.5, instructionArr[0].length, 1, 'red')
+		makeRightArrow('#' + logoID, 0, 10 + 12.5, 12.5, instructionArr[0].length, 1, 'blue')
 	}, 500)
 }
 
-function makeArrow(logoID, node, geneGroupNumber) {
-	let instructions = 'M0,0L100,0'
+function makeRightArrow(logoID, x, y, h, width, geneGroupNum, color) {
+	let pt1 = x + ',' + (y + h / 5)
+	let pt2 = (x + width * 8 / 11) + ',' + (y + h / 5)
+	let pt3 = (x + width * 8 / 11) + ',' + y
+	let pt4 = (x + width) + ',' + (y + h / 2)
+	let pt5 = (x + width * 8 / 11) + ',' + (y + h)
+	let pt6 = (x + width * 8 / 11) + ',' + (y + h - h / 5)
+	let pt7 = x + ',' + (y + h - h / 5)
+	let instructions = 'M' + pt1 + 'L' + pt2 + 'L' + pt3 + 'L' + pt4 + 'L' + pt5 + 'L' + pt6 + 'L' + pt7 + 'L' + pt1
+	d3.select(logoID).append('path')
+		.attr('class', 'arrow group' + geneGroupNum)
+		.attr('stroke', 'black')
+		.attr('stroke-width', 1)
+		.attr('fill', color)
+		.attr('d', instructions)
+}
+
+function makeTestLines(logoID, node, geneGroupNumber) {
+	let instructions = 'M0,15L100,15'
+	d3.select(logoID).append('path')
+		.attr('class', 'arrow group' + geneGroupNumber)
+		.attr('d', instructions)
+		.attr('stroke', 'black')
+		.attr('stroke-width', 1)
+		.attr('fill', 'red')
+	instructions = 'M0,40L100,40'
 	d3.select(logoID).append('path')
 		.attr('class', 'arrow group' + geneGroupNumber)
 		.attr('d', instructions)
@@ -88,6 +114,36 @@ function buildWidthDictionary(clusterMatrix) {
 		}
 	}
 	return widthDict
+}
+
+function buildInstructionArray(node) {
+	let widthDictionary = buildWidthDictionary(node.property('alignment').clusterMatrix)
+	let clusterMatrix = node.property('alignment').clusterMatrix
+	console.log(clusterMatrix)
+	console.log(widthDictionary)
+	let instructionArr = []
+	for (let i = 0; i < clusterMatrix[0].length; i++) {
+		let dict = {}
+		let maxWidth = 0
+		for (let j = 0; j < clusterMatrix.length; j++) {
+			if (clusterMatrix[j][i] !== '-') {
+				let key = String(clusterMatrix[j][i])
+				if (!(key in dict)) {
+					dict[key] = 1
+					if (widthDictionary[key] > maxWidth)
+						maxWidth = widthDictionary[key]
+				}
+				else {
+					dict[key]++
+				}
+			}
+		}
+		dict['length'] = maxWidth
+		// Need to sort the dict
+		instructionArr.push(dict)
+		maxWidth = 0
+	}
+	return instructionArr
 }
 
 exports.buildLogo = buildLogo
