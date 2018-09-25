@@ -18,15 +18,25 @@ function buildLogo(node) {
 			.attr('transform', 'translate(0, ' + clusterYTransform + ')')
 			.attr('correspondingNodeID', nodeID)
 		let instructionArr = buildInstructionArray(node)
-		console.log(instructionArr)
 		let xIndex = 0
+		// Drawing the actual logo from the instructions array.
 		for (let i = 0; i < instructionArr.length; i++) {
 			let yIndex = 35
 			let thisLen = instructionArr[i].length
 			for (let key in instructionArr[i]) {
 				if (key !== 'length') {
+					let geneID = 0
+					let clusterIDs = clusterOperations.getClusterIDs()
+					for (let ID in clusterIDs) {
+						if (clusterIDs[ID] === Number(key)) {
+							geneID = Number(ID)
+							break
+						}
+					}
+					let geneGroups = clusterOperations.getGHObject().genes[geneID].groups.groups_
+					let color = '#' + geneGroups[geneGroups.length - 1].groupTag_.color_
 					let height = 25 * instructionArr[i][key] / clusterMatrix.length
-					makeRightArrow('#' + logoID, xIndex, yIndex - height, height, thisLen, Number(key), 'red')
+					makeRightArrow('#' + logoID, xIndex, yIndex - height, height, thisLen, Number(key), color)
 					yIndex -= height
 				}
 			}
@@ -45,7 +55,6 @@ function makeRightArrow(logoID, x, y, h, width, geneGroupNum, color) {
 	let pt6 = (x + width * 8 / 11) + ',' + (y + h - h / 5)
 	let pt7 = x + ',' + (y + h - h / 5)
 	let instructions = 'M' + pt1 + 'L' + pt2 + 'L' + pt3 + 'L' + pt4 + 'L' + pt5 + 'L' + pt6 + 'L' + pt7 + 'L' + pt1
-	console.log(instructions)
 	d3.select(logoID).append('path')
 		.attr('class', 'arrow group' + geneGroupNum)
 		.attr('stroke', 'black')
