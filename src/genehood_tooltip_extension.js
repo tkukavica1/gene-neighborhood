@@ -67,8 +67,9 @@ function addTooltipButtons(tree, node) {
 	}
 	else {
 		collapseButton.on('click', function() {
+			let logoXTransform = 0
 			if (!node.is_collapsed()) {
-				clusterOperations.prepareGenerateLogo(node)
+				logoXTransform = clusterOperations.prepareGenerateLogo(node)
 			}
 			else if (node.is_collapsed()) {
 				for (let i = 0; i < aligned.length; i++) {
@@ -81,7 +82,7 @@ function addTooltipButtons(tree, node) {
 			treeOperations.updateUserChanges(tree)
 			console.log(node.data())
 			if (node.is_collapsed())
-				logoBuild.buildLogo(node)
+				logoBuild.buildLogo(node, logoXTransform)
 			d3.select(id)
 				.select('.tnt_node_display_elem')
 				.attr('fill', 'black')

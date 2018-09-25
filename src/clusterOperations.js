@@ -450,20 +450,27 @@ function drawGap(currentClusterID, precedingGeneClass, length, direction) {
 		return d3.select('#gap' + (gapCounter - 1)).node()
 				.getBBox().width + padding * 2
 	}
-	else {
-		console.log('Error: Failed to draw gap because direction is not recognizable.')
-		return 0
-	}
+	console.log('Error: Failed to draw gap because direction is not recognizable.')
+	return 0
 }
 
 /**
  * Generates gene cluster logo and modifies SVG display accordingly.
  *
  * @param {any} node The node for whose alignment the gene cluster logo is to be created.
+ *
+ * @returns The x-transform of the ref gene in the first leaf of the node to be collapsed. This will be
+ * 			the amount by which the logo gets horizontally translated.
  */
 function prepareGenerateLogo(node) {
 	turnOffAndResetClusters(node)
+	let currClusterID = node.get_all_leaves()[0].property('correspondingClusterID')
+	let currClusterNum = Number(currClusterID.substring(3))
+	let refGene = drawGN.geneHoodObject.gns[currClusterNum].ref
+	let xTransform = d3.select('.gene' + refGene).node()
+		.getBBox().x
 	// Need to remake leaf indices so clusters follow accordingly
+	return xTransform
 }
 
 /**

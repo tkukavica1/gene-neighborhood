@@ -110,7 +110,7 @@ class DrawGN {
 		this.interactiveParams.searched.clear()
 		const t0 = performance.now()
 		this.markHomologs(null)
-		console.log(`markHomologs took ${performance.now() - t0} ms`)
+		// console.log(`markHomologs took ${performance.now() - t0} ms`)
 		this.unMarkHomologs()
 	}
 

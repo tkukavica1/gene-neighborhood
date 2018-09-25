@@ -4,7 +4,7 @@
 const d3 = require('d3'),
 	clusterOperations = require('./clusterOperations')
 
-function buildLogo(node) {
+function buildLogo(node, logoXTransform) {
 	setTimeout(function() {
 		let nodeID = '#tnt_tree_node_treeBox_' + node.property('_id')
 		let nodeYTransform = parseTransform(nodeID)
@@ -15,7 +15,7 @@ function buildLogo(node) {
 		d3.select('.geneHoodArea').append('g')
 			.attr('class', 'clusterLogo')
 			.attr('id', logoID)
-			.attr('transform', 'translate(0, ' + clusterYTransform + ')')
+			.attr('transform', 'translate(' + logoXTransform + ', ' + clusterYTransform + ')')
 			.attr('correspondingNodeID', nodeID)
 		let instructionArr = buildInstructionArray(node)
 		let xIndex = 0
@@ -42,6 +42,7 @@ function buildLogo(node) {
 			}
 			xIndex += thisLen
 		}
+		console.log(d3.select('.gene258').node().getBBox().x)
 	}, 500)
 	console.log(clusterOperations.getGHObject())
 }
