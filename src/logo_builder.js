@@ -4,7 +4,7 @@
 const d3 = require('d3'),
 	clusterOperations = require('./clusterOperations')
 
-function buildLogo(node, logoXTransform) {
+function buildLogo(node, logoXTransformArr) {
 	setTimeout(function() {
 		let nodeID = '#tnt_tree_node_treeBox_' + node.property('_id')
 		let nodeYTransform = parseTransform(nodeID)
@@ -15,10 +15,11 @@ function buildLogo(node, logoXTransform) {
 		d3.select('.geneHoodArea').append('g')
 			.attr('class', 'clusterLogo')
 			.attr('id', logoID)
-			.attr('transform', 'translate(' + logoXTransform + ', ' + clusterYTransform + ')')
+			.attr('transform', 'translate(0, ' + clusterYTransform + ')')
 			.attr('correspondingNodeID', nodeID)
 		let instructionArr = buildInstructionArray(node)
 		let xIndex = 0
+		let xTranslate = 0 // Will be used to translate the reference gene at the end
 		// Drawing the actual logo from the instructions array.
 		for (let i = 0; i < instructionArr.length; i++) {
 			let yIndex = 35
@@ -37,11 +38,14 @@ function buildLogo(node, logoXTransform) {
 					let color = '#' + geneGroups[geneGroups.length - 1].groupTag_.color_
 					let height = 25 * instructionArr[i][key] / clusterMatrix.length
 					makeRightArrow('#' + logoID, xIndex, yIndex - height, height, thisLen, Number(key), color)
+					if (Number(key) === logoXTransformArr[1])
+						xTranslate = logoXTransformArr[0] - xIndex
 					yIndex -= height
 				}
 			}
 			xIndex += thisLen
 		}
+		d3.select('#' + logoID).attr('transform', 'translate(' + xTranslate + ', ' + clusterYTransform + ')')
 	}, 500)
 	console.log(clusterOperations.getGHObject())
 }

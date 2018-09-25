@@ -459,8 +459,10 @@ function drawGap(currentClusterID, precedingGeneClass, length, direction) {
  *
  * @param {any} node The node for whose alignment the gene cluster logo is to be created.
  *
- * @returns The x-transform of the ref gene in the first leaf of the node to be collapsed. This will be
+ * @returns First element: x-transform of the ref gene in the first leaf of the node to be collapsed. This will be
  * 			the amount by which the logo gets horizontally translated.
+ * 			Second element: ID used in the alignment clusterMatrix for the reference gene in the first leaf of the node
+ * 			to be collapsed.
  */
 function prepareGenerateLogo(node) {
 	turnOffAndResetClusters(node)
@@ -470,7 +472,8 @@ function prepareGenerateLogo(node) {
 	let xTransform = d3.select('.gene' + refGene).node()
 		.getBBox().x
 	// Need to remake leaf indices so clusters follow accordingly
-	return xTransform
+	console.log([xTransform, clusterIDs[String(refGene)]])
+	return [xTransform, clusterIDs[String(refGene)]]
 }
 
 /**

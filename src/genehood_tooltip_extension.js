@@ -67,9 +67,9 @@ function addTooltipButtons(tree, node) {
 	}
 	else {
 		collapseButton.on('click', function() {
-			let logoXTransform = 0
+			let logoXTransformArr = [0, 1]
 			if (!node.is_collapsed()) {
-				logoXTransform = clusterOperations.prepareGenerateLogo(node)
+				logoXTransformArr = clusterOperations.prepareGenerateLogo(node)
 			}
 			/* else if (node.is_collapsed()) {
 				for (let i = 0; i < aligned.length; i++) {
@@ -80,7 +80,7 @@ function addTooltipButtons(tree, node) {
 			treeOperations.toggleNodeProperty(node)
 			treeOperations.updateUserChanges(tree)
 			if (node.is_collapsed()) {
-				logoBuild.buildLogo(node, logoXTransform)
+				logoBuild.buildLogo(node, logoXTransformArr)
 			}
 			else if (!node.is_collapsed()) {
 				clusterOperations.unhideClusters(node)
