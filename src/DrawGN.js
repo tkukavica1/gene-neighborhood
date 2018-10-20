@@ -2,9 +2,12 @@
 
 const d3 = require('d3')
 const mist3 = require('node-mist3')
+const phylogician = require('phylogician')
 
 const HomologGroupTag = require('./HomologGroupTag')
 const HomologGroupEntry = require('./HomologGroupEntry')
+let currentNodeIndex = 1
+let currentLeafIndex = 0
 
 const arrow2line = d3.line()
 	.x(function(d) {
@@ -63,24 +66,36 @@ class DrawGN {
 		const self = this
 		d3.select('#evalueCutOff')
 		.on('input', function() {
-			if (self.interactiveParams.selected && self.interactiveParams.currentEvalue > this.value) {
-				self.svg.selectAll('.arrow')
-					.filter((geneIndex) => {
-						const gene = self.geneHoodObject.getGene(geneIndex)
-						return gene.groups.getLastGroupTag() === self.interactiveParams.currentGroupTag
-					})
-					.each((geneIndex) => {
-						const gene = self.geneHoodObject.getGene(geneIndex)
-						gene.groups.popGroup()
-					})
-			}
-			self.interactiveParams.currentEvalue = this.value
-			self.interactiveParams.searched.clear()
-			const t0 = performance.now()
-			self.markHomologs(null)
-			console.log(`markHomologs took ${performance.now() - t0} ms`)
-			self.unMarkHomologs()
+			self.changeCutOff(this.value)
+			d3.select('#evalueCutOffText')
+				.attr('value', this.value)
 		})
+		d3.select('#evalueCutOffText')
+			.on('change', function() {
+				self.changeCutOff(this.value)
+				d3.select('#evalueCutOff')
+					.attr('value', this.value)
+			})
+	}
+
+	changeCutOff(newValue) {
+		if (this.interactiveParams.selected && this.interactiveParams.currentEvalue > newValue) {
+			this.svg.selectAll('.arrow')
+				.filter((geneIndex) => {
+					const gene = this.geneHoodObject.getGene(geneIndex)
+					return gene.groups.getLastGroupTag() === this.interactiveParams.currentGroupTag
+				})
+				.each((geneIndex) => {
+					const gene = this.geneHoodObject.getGene(geneIndex)
+					gene.groups.popGroup()
+				})
+		}
+		this.interactiveParams.currentEvalue = newValue
+		this.interactiveParams.searched.clear()
+		const t0 = performance.now()
+		this.markHomologs(null)
+		console.log(`markHomologs took ${performance.now() - t0} ms`)
+		this.unMarkHomologs()
 	}
 
 	drawAllClusters() {
@@ -98,12 +113,26 @@ class DrawGN {
 		else
 			self.xDom.range([this.width, 0])
 
+/* 		for (let k = currentNodeIndex + 1; k <= 1000000000; k++) {
+			if (d3.select('#tnt_tree_node_treeBox_' + k).attr('class') === 'leaf tnt_tree_node') {
+				currentNodeIndex = k
+				break
+			}
+		} */
+
+		let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
+
 		const genes = self.svg.append('g')
 			.attr('class', 'geneCluster')
 			.attr('id', `GN${i}`)
 			.attr('transform', `translate (0, ${self.params.padding + i * (self.params.arrowThickness + self.params.paddingBetweenArrows)})`)
+			.attr('correspondingNodeID', corrNodeID)
 			.selectAll('.geneCluster')
 			.data(geneCluster.cluster)
+
+/* 		d3.select(corrNodeID).attr('correspondingClusterID', '#GN' + i)
+			.attr('leafIndex', currentLeafIndex)
+		currentLeafIndex++ */
 
 		genes.enter()
 			.append('path')
@@ -168,6 +197,12 @@ class DrawGN {
 				}
 				return `translate(${x}, ${y}) rotate(${self.geneNameInclination}) `
 			})
+	}
+
+	drawTree(drawSpace, dimensions) {
+		const nodeYSpacing = 55
+		const newick = buildLocusNewick(this.geneHoodObject.phylo)
+		phylogician.makeCustomTree(newick, nodeYSpacing)
 	}
 
 	toggleGeneSelection_(geneIndex) {
@@ -339,12 +374,12 @@ class DrawGN {
 		const divtip = d3.select(tipId)
 		const genomes = new mist3.Genomes(this.httpsDefaultOptions, 'error')
 		let organismName = ''
-		// const DA = "" // `<img src="httpss://api.mistdb.caltech.edu/v1/aseqs/${gene.aseq_id}.png">`
+		const DA = `<img src="http://seqdepot.net/api/v1/aseqs/${gene.aseq_id}.png">`
 		genomes.getGenomeInfoByVersion(gene.stable_id.split('-')[0]).then((info) => {
 			organismName = info.name
 			divtip.transition()
 			const names = gene.names ? gene.names.join(',') : ''
-			divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}</h>`)
+			divtip.html(`<h>Organism: ${organismName}<br/>Stable ID: ${gene.stable_id}<br/>locus: ${gene.locus}<br/>Old locus: ${gene.old_locus}<br/>Description: ${gene.product}<br>${DA}</br></h>`)
 		})
 	}
 
@@ -397,4 +432,29 @@ class DrawGN {
 		return arrow
 	}
 
+}
+
+/**
+ * 
+ * 
+ * @param {any} newick 
+ */
+function buildLocusNewick(newick) {
+	let newNewick = ''
+	let reachedHyphen = false
+	for (let i = 0; i < newick.length; i++) {
+		if (newick[i] === '-' && !reachedHyphen) {
+			reachedHyphen = true
+			i++
+		}
+		if (reachedHyphen) {
+			if (newick[i] === ',')
+				reachedHyphen = false
+			newNewick += newick[i]
+		}
+		else if (newick[i] === '(' || newick[i] === ')') {
+			newNewick += newick[i]
+		}
+	}
+	return newNewick
 }

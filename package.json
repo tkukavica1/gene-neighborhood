@@ -55,10 +55,16 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "glob": "^7.1.2",
+    "mgca": "github:tkukavica1/mgca#implementMGCA",
     "mocha": "^5.0.0",
     "mocha-bunyan-reporter": "0.0.2",
     "mocha-pretty-bunyan-nyan": "^1.0.4",
     "nyc": "^11.4.1",
+    "phylogician": "github:theJensenLab/phylogician#geneHoodUse",
+    "tnt.newick": "github:daviortega/tnt.newick#f-read-raxml-IC",
+    "tnt.tooltip": "github:tkukavica1/tnt.tooltip#d3v4",
+    "tnt.tree": "github:daviortega/tnt.tree#d3v4",
+    "tnt.utils": "github:tntvis/tnt.utils#d3v4",
     "watchify": "^3.10.0"
   }
 }

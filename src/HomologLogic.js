@@ -18,7 +18,6 @@ class HomologLogic {
 	init() {
 		const tagGroupZero = new HomologGroupTag(this.params.colorOfGroupZero)
 		const entryGroupZero = new HomologGroupEntry(tagGroupZero)
-		console.log('adding stuff to genes')
 		const t0 = performance.now()
 		this.geneHoodObject.genes.forEach((gene, geneIndex) => {
 			const groupList = new ListOfHomologGroups()
@@ -28,7 +27,7 @@ class HomologLogic {
 			gene.blastHits = {}
 		})
 		this.addBlastHits()
-		console.log(`Done in: ${performance.now() - t0}`)
+		console.log(`Loaded in ${Math.floor(performance.now() - t0)}ms`)
 		return {
 			tagGroupZero,
 			entryGroupZero

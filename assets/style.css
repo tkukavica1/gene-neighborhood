@@ -38,23 +38,71 @@ body, html {
     z-index: 10;
 }
 
-#divColor, #divTip, #compTip, #divSlider {
-    display: table-cell;
+#divColor {
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
-#divColor {
-    vertical-align: middle
+#evalueCutOff {
+    width: 100px;
+}
+
+#divSlider {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#evalueCutOffText {
+    width: 100px;
+}
+
+#divSliderText {
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 #divTip {
     width: 500px;
 }
 
-#divSlider {
-    width: 100px;
-    height: 130px;
+#treeBox {
+    position: absolute;
+    z-index: 3;
 }
 
-#evalueCutOff {
-    transform: translate(0px, 50px) rotate(-90deg);
+#geneClusterBox {
+    position: absolute;
+    z-index: 1;
+}
+
+#geneHoodArea {
+    z-index: 1;
+}
+
+#branchWidthInput {
+    position: relative;
+    left:40%;
+    top:100px;
+    width: 300px;
+    height: 40px;
+
+    opacity: 1;
+    z-index: 10;
+}
+
+#tnt_tooltip_1 {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 1);
+    cursor: default;
+    z-index: 5;
+}
+
+.tnt_zmenu_header {
+    cursor: move;
+    z-index: 5;
+}
+  
+.tnt_zmenu_clickable {
+    cursor: pointer;
+    z-index: 5;
 }
