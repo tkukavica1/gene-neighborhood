@@ -38,6 +38,12 @@ body, html {
     z-index: 10;
 }
 
+
+#divTip, #compTip, #divSlider {
+    display: table-cell;
+    position: relative;
+}
+
 #divColor {
     padding-top: 10px;
     padding-bottom: 10px;
