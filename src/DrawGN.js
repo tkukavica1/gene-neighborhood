@@ -139,6 +139,13 @@ class DrawGN {
 		else
 			self.xDom.range([this.width, 0])
 
+/* 		for (let k = currentNodeIndex + 1; k <= 1000000000; k++) {
+			if (d3.select('#tnt_tree_node_treeBox_' + k).attr('class') === 'leaf tnt_tree_node') {
+				currentNodeIndex = k
+				break
+			}
+		} */
+
 		let corrNodeID = '#tnt_tree_node_treeBox_' + currentNodeIndex
 
 		const genes = self.svg.append('g')

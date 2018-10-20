@@ -55,6 +55,7 @@ class GeneHoodViewer {
 			this.drawGN.init(groupInit)
 			let tree = this.drawGN.drawTree(drawSpace)
 			let rootNode = tree.root()
+
 			this.drawGN.drawAllClusters()
 			this.drawGN.assignClusterAndNodeIDS(rootNode) // Ensure all gene cluster loci and nodes are linked.
 			clusterOperations.firstMatchNodesAndClusters(rootNode, rootNode.get_all_leaves(), this.drawGN) // Refresh the node-cluster linkage on the front end.
