@@ -1,12 +1,16 @@
 'use strict'
 
 const d3 = require('d3')
-const DrawGN = require('./DrawGN')
+const DrawGN = require('./DrawGN'),
+	clusterOperations = require('./clusterOperations.js')
 require('d3-selection')
 const zoom = d3.zoom()
 
 const GeneHoodObject = require('./GeneHoodObject')
 const HomologLogic = require('./HomologLogic')
+const phylogician = require('phylogician')
+const mgca = require('mgca'),
+	ghTooltip = require('./genehood_tooltip_extension.js')
 
 module.exports =
 class GeneHoodViewer {
@@ -49,8 +53,24 @@ class GeneHoodViewer {
 			// Drawing tree and clusters.
 			this.drawGN = new DrawGN(this.geneHoodObject, geneHoodArea, widthGN)
 			this.drawGN.init(groupInit)
-			this.drawGN.drawTree(drawSpace, dimensions)
+			let tree = this.drawGN.drawTree(drawSpace)
+			let rootNode = tree.root()
 			this.drawGN.drawAllClusters()
+			this.drawGN.assignClusterAndNodeIDS(rootNode) // Ensure all gene cluster loci and nodes are linked.
+			clusterOperations.firstMatchNodesAndClusters(rootNode, rootNode.get_all_leaves(), this.drawGN) // Refresh the node-cluster linkage on the front end.
+			mgca.testConnection()
+
+			// Installs a listener at each node that displays a tooltip upon click.
+			tree.on('click', function(node) {
+				// Resets color of all nodes to black.
+				d3.selectAll('.tnt_tree_node')
+					.selectAll('.tnt_node_display_elem')
+					.attr('fill', 'black')
+
+				// Generates a tooltip for selected node.
+				let self = this
+				ghTooltip.generateTooltip(tree, node, self)
+			})
 
 			// Enabling synchronized scrolling for both phylogenetic tree and gene cluster 'g' elements.
 			const treeAreaG = d3.select('#tnt_st_treeBox')
