@@ -158,7 +158,7 @@ function closeTooltip() {
 	if (d3.select('#tnt_tooltip_1')) {
 		d3.select('#tnt_tooltip_1').remove()
 		d3.selectAll('.tnt_tree_node').selectAll('.tnt_node_display_elem')
-			.attr('opacity', 0)
+			.attr('opacity', 0.3)
 		treeOperations.setNodeClicked(false)
 		treeOperations.setPrevNodeID(0)
 	}
