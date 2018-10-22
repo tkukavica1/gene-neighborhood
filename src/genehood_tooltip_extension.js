@@ -77,14 +77,17 @@ function addTooltipButtons(tree, node) {
 						aligned.splice(i, 1) // Removes from aligned nodes, since no longer aligned and modifications may be made
 				}
 			} */
+			let leavesArr = node.get_all_leaves()
 			treeOperations.toggleNodeProperty(node)
 			treeOperations.updateUserChanges(tree)
 			if (node.is_collapsed()) {
 				logoBuild.buildLogo(node, logoXTransformArr)
+				clusterOperations.matchNodesAndClustersCollapsed(tree, node, leavesArr, 'collapsing')
 			}
 			else if (!node.is_collapsed()) {
 				clusterOperations.unhideClusters(node)
 				logoBuild.removeLogo(node.property('_id'))
+				clusterOperations.matchNodesAndClustersCollapsed(tree, node, leavesArr, 'uncollapsing')
 			}
 			d3.select(id)
 				.select('.tnt_node_display_elem')
