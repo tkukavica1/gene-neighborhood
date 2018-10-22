@@ -175,7 +175,7 @@ class DrawGN {
 			})
 			.attr('fill', (geneIndex) => {
 				return 'white'
-				// const gene = self.geneHoodObject.getGene(geneIndex)
+				const gene = self.geneHoodObject.getGene(geneIndex)
 				// return gene.groups.getLastGroupColor()
 			})
 			.attr('alignID', 'none')
@@ -363,14 +363,16 @@ class DrawGN {
 			this.svg.selectAll('.arrow')
 				.filter((arrowIndex) => {
 					const arrow = self.geneHoodObject.getGene(arrowIndex)
-					if (arrow.blastHits.hasOwnProperty(arrowIndex))
+					if (arrow.blastHits.hasOwnProperty(geneIndex))
 						return arrow.blastHits[geneIndex] >= self.interactiveParams.currentEvalue && arrow.groups.getLastGroupTag() !== self.interactiveParams.currentGroupTag
 					return false
 				})
 				.each((arrowIndex) => {
 					const arrow = self.geneHoodObject.getGene(arrowIndex)
 					const selGene = self.geneHoodObject.getGene(geneIndex)
-					let logEvalue = arrow.blastHits[arrowIndex]
+					// console.log(`Gene: ${arrowIndex}`)
+					// console.log(arrow.blastHits)
+					let logEvalue = arrow.blastHits[geneIndex]
 					if (selGene.groups.getLastGroupLogEvalue()) {
 						if (selGene.groups.getLastGroupLogEvalue() < logEvalue)
 							logEvalue = selGene.groups.getLastGroupLogEvalue()
@@ -406,7 +408,7 @@ class DrawGN {
 				})
 				.filter((arrowIndex) => {
 					const arrow = self.geneHoodObject.getGene(arrowIndex)
-					// console.log(`part of the group ${self.interactiveParams.currentGroupTag.getHash()}: ${arrowIndex} - ${arrow.groups.getLastGroupLogEvalue()} vs. ${self.interactiveParams.currentEvalue}`)
+					// console.log(`part of the groups ${JSON.stringify(arrow.groups)}\n Current Group ${self.interactiveParams.currentGroupTag.getHash()}: ${arrowIndex} - ${arrow.groups.getLastGroupLogEvalue()} vs. ${self.interactiveParams.currentEvalue}`)
 					return arrow.groups.getLastGroupLogEvalue() < self.interactiveParams.currentEvalue || self.interactiveParams.currentEvalue === self.interactiveParams.maxLogEvalue
 				})
 				.each((arrowIndex) => {
@@ -415,14 +417,14 @@ class DrawGN {
 				})
 				.style('fill', (arrowIndex) => {
 					const arrow = self.geneHoodObject.getGene(arrowIndex)
-					// console.log(`turning off: ${arrowIndex}`)
+					// // console.log(`turning off: ${arrowIndex}`)
 					return arrow.groups.getLastGroupColor()
 				})
 		}
 	}
 
 	/**
-	 * Changesd the color of the currently selected gene homolog group.
+	 * Changes the color of the currently selected gene homolog group.
 	 *
 	 * @param {any} color The desired color.
 	 */
@@ -453,6 +455,7 @@ class DrawGN {
 	displayGeneInfo_(geneIndex, tipId) {
 		let prod = ''
 		const gene = this.geneHoodObject.getGene(geneIndex)
+		console.log(`Gene: ${geneIndex} Groups: ${JSON.stringify(gene.groups)}`)
 		const divtip = d3.select(tipId)
 		const genomes = new mist3.Genomes(this.httpsDefaultOptions, 'error')
 		let organismName = ''
