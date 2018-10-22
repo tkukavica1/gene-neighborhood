@@ -246,7 +246,7 @@ class DrawGN {
 			for (let j = 0; j < leavesArr.length; j++) {
 				// Need a new for loop here because leavesArr is not in the same order as seen in the visualization.
 				if (leavesArr[j].property('_id') === currentNodeIndex) {
-					leavesArr[j].property('leafIndex', j + 1)
+					leavesArr[j].property('leafIndex', j)
 					leavesArr[j].property('correspondingClusterID', '#GN' + i)
 				}
 			}

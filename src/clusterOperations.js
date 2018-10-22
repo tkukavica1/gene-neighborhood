@@ -20,9 +20,8 @@ function matchNodesAndClusters(node, leavesArr) {
 
 	// Find lowest leafIndex
 	for (let i = 0; i < leavesArr.length; i++) {
-		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
-		if (d3.select(currentNodeID).attr('leafIndex') < minIndex)
-			minIndex = d3.select(currentNodeID).attr('leafIndex')
+		if (leavesArr[i].property('leafIndex') < minIndex)
+			minIndex = leavesArr[i].property('leafIndex')
 	}
 
 	minIndex = Number(minIndex)
@@ -31,14 +30,55 @@ function matchNodesAndClusters(node, leavesArr) {
 
 	for (let i = 0; i < leavesArr.length; i++) {
 		try {
-			let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
 			let newIndex = minIndex + i
 			let newTranslateY = newIndex * 55 + 5
-			d3.select(currentNodeID).attr('leafIndex', newIndex)
-			let currentClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+			leavesArr[i].property('leafIndex', newIndex)
+			let currentClusterID = leavesArr[i].property('correspondingClusterID')
 			d3.select(currentClusterID).transition()
 				.duration(500)
 				.attr('transform', 'translate(0, ' + newTranslateY + ')')
+			d3.select('#clusterLogo' + leavesArr[i].property('_id'))
+				.attr('transform', 'translate(0, ' + newTranslateY + ')') // Need to change 0 to the same x translate as before
+		}
+		catch (err) {
+			console.log('Caught an error.')
+		}
+	}
+}
+
+function matchNodesAndClustersCollapsed(tree, node, leavesArr, type) {
+	let minIndex = 1000000000
+
+	let nodeLeavesArr = leavesArr
+	if (type === 'uncollapsing')
+		nodeLeavesArr = node.get_all_leaves()
+
+	let collapsedIDs = []
+	// Find lowest leafIndex in collapsed
+	for (let i = 0; i < nodeLeavesArr.length; i++) {
+		if (nodeLeavesArr[i].property('leafIndex') < minIndex)
+			minIndex = nodeLeavesArr[i].property('leafIndex')
+		if (type === 'uncollapsing')
+			collapsedIDs.push(nodeLeavesArr[i].property('_id'))
+	}
+
+	console.log(collapsedIDs)
+
+	let treeLeavesArr = tree.root().get_all_leaves()
+
+	for (let i = 0; i < treeLeavesArr.length; i++) {
+		try {
+			if (treeLeavesArr[i].property('leafIndex') > minIndex) {
+				if (type === 'collapsing')
+					treeLeavesArr[i].property('leafIndex', treeLeavesArr[i].property('leafIndex') - (nodeLeavesArr.length - 1))
+				else if (type === 'uncollapsing' && (!collapsedIDs.includes(treeLeavesArr[i].property('_id'))))
+					treeLeavesArr[i].property('leafIndex', treeLeavesArr[i].property('leafIndex') + (nodeLeavesArr.length - 1))
+				let newTranslateY = treeLeavesArr[i].property('leafIndex') * 55 + 5
+				let currentClusterID = treeLeavesArr[i].property('correspondingClusterID')
+				d3.select(currentClusterID).transition()
+				.duration(500)
+				.attr('transform', 'translate(0, ' + newTranslateY + ')')
+			}
 		}
 		catch (err) {
 			console.log('Caught an error.')
@@ -537,6 +577,7 @@ function getGHObject() {
 
 // Exporting functions for use in other files
 exports.matchNodesAndClusters = matchNodesAndClusters
+exports.matchNodesAndClustersCollapsed = matchNodesAndClustersCollapsed
 exports.firstMatchNodesAndClusters = firstMatchNodesAndClusters
 exports.canAlign = canAlign
 exports.runAlignment = runAlignment
