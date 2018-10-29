@@ -52,6 +52,7 @@ function buildLogo(node, logoXTransformArr) {
 			xIndex += thisLen
 		}
 		d3.select('#' + logoID).attr('transform', 'translate(' + xTranslate + ', ' + clusterYTransform + ')')
+								.attr('x-translate', xTranslate)
 	}, 500)
 }
 

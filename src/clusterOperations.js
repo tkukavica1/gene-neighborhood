@@ -37,8 +37,15 @@ function matchNodesAndClusters(node, leavesArr) {
 			d3.select(currentClusterID).transition()
 				.duration(500)
 				.attr('transform', 'translate(0, ' + newTranslateY + ')')
-			d3.select('#clusterLogo' + leavesArr[i].property('_id'))
-				.attr('transform', 'translate(0, ' + newTranslateY + ')') // Need to change 0 to the same x translate as before
+			try {
+				let xTranslate = d3.select('#clusterLogo' + leavesArr[i].property('_id')).attr('x-translate')
+				d3.select('#clusterLogo' + leavesArr[i].property('_id')).transition()
+					.duration(500)
+					.attr('transform', 'translate(' + xTranslate + ', ' + newTranslateY + ')') // Need to change 0 to the same x translate as before
+			}
+			catch (err) {
+				// Checking if each node in the subtree has a corresponding cluster logo
+			}
 		}
 		catch (err) {
 			console.log('Caught an error.')
@@ -76,8 +83,8 @@ function matchNodesAndClustersCollapsed(tree, node, leavesArr, type) {
 				let newTranslateY = treeLeavesArr[i].property('leafIndex') * 55 + 5
 				let currentClusterID = treeLeavesArr[i].property('correspondingClusterID')
 				d3.select(currentClusterID).transition()
-				.duration(500)
-				.attr('transform', 'translate(0, ' + newTranslateY + ')')
+					.duration(500)
+					.attr('transform', 'translate(0, ' + newTranslateY + ')')
 			}
 		}
 		catch (err) {
