@@ -38,26 +38,36 @@ body, html {
     z-index: 10;
 }
 
-#divColor, #divTip, #compTip, #divSlider {
+#divTip, #compTip, #divSlider {
     display: table-cell;
     position: relative;
 }
 
 #divColor {
-    vertical-align: middle
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#evalueCutOff {
+    width: 100px;
+}
+
+#divSlider {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#evalueCutOffText {
+    width: 100px;
+}
+
+#divSliderText {
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 #divTip {
     width: 500px;
-}
-
-#divSlider {
-    width: 100px;
-    height: 130px;
-}
-
-#evalueCutOff {
-    transform: translate(0px, 50px) rotate(-90deg);
 }
 
 #treeBox {
