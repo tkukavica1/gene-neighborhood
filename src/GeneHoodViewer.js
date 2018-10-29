@@ -8,7 +8,6 @@ const zoom = d3.zoom()
 
 const GeneHoodObject = require('./GeneHoodObject')
 const HomologLogic = require('./HomologLogic')
-const phylogician = require('phylogician')
 const mgca = require('mgca'),
 	ghTooltip = require('./genehood_tooltip_extension.js')
 
@@ -41,6 +40,7 @@ class GeneHoodViewer {
 				.style('border', '1px solid black')
 
 			const geneHoodArea = svg.append('g')
+				.attr('id', 'geneHoodArea')
 				.attr('class', 'geneHoodArea')
 				.attr('width', dimensions.width)
 				.attr('transform', `translate (${1/3 * dimensions.width}, 20)`)

@@ -3,6 +3,7 @@
 
 const d3 = require('d3'),
 	phylogician = require('phylogician'),
+	$ = require('jquery'),
 	treeOperations = phylogician.treeOperations,
 	clusterOperations = require('./clusterOperations.js'),
 	logoBuild = require('./logo_builder.js'),
@@ -71,12 +72,12 @@ function addTooltipButtons(tree, node) {
 			if (!node.is_collapsed()) {
 				logoXTransformArr = clusterOperations.prepareGenerateLogo(node)
 			}
-			/* else if (node.is_collapsed()) {
+			else if (node.is_collapsed()) {
 				for (let i = 0; i < aligned.length; i++) {
 					if (aligned[i] === node.id())
 						aligned.splice(i, 1) // Removes from aligned nodes, since no longer aligned and modifications may be made
 				}
-			} */
+			}
 			let leavesArr = node.get_all_leaves()
 			treeOperations.toggleNodeProperty(node)
 			treeOperations.updateUserChanges(tree)
@@ -95,6 +96,16 @@ function addTooltipButtons(tree, node) {
 				.attr('x', -10)
 				.attr('y', -9)
 			closeTooltip()
+			setTimeout(function() {
+				// Timeout is necessary. Is it better to do it this way or match geneHoodArea with y-translate
+				// of 20 as is the TNT default?
+				let YTransform = logoBuild.parseTransform('#geneHoodArea')
+				let currTransformSubstr = d3.select('#tnt_st_treeBox').attr('transform')
+					.substring(0, 13)
+				d3.select('#tnt_st_treeBox').transition()
+					.duration(500)
+					.attr('transform', currTransformSubstr + ' ' + YTransform + ')')
+			}, 500)
 		})
 	}
 
