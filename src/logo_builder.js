@@ -52,6 +52,7 @@ function buildLogo(node, logoXTransformArr) {
 			xIndex += thisLen
 		}
 		d3.select('#' + logoID).attr('transform', 'translate(' + xTranslate + ', ' + clusterYTransform + ')')
+								.attr('x-translate', xTranslate)
 	}, 500)
 }
 
@@ -84,14 +85,14 @@ function makeRightArrow(logoID, x, y, h, width, geneGroupNum, color) {
 }
 
 /**
- * Parses the transform of a given node to find its y transform attribute.
+ * Parses the transform of a given element to find its y transform attribute.
  *
- * @param {any} nodeID The ID of the node to be checked.
+ * @param {any} elementID The ID of the element to be checked.
  *
  * @returns The y transform attribute of the indicated node.
  */
-function parseTransform(nodeID) {
-	let currTransform = d3.select(nodeID).attr('transform')
+function parseTransform(elementID) {
+	let currTransform = d3.select(elementID).attr('transform')
 	let YTransform = ''
 	let isParsing = false
 	for (let i = 10; i < currTransform.length; i++) {
@@ -184,5 +185,6 @@ function removeLogo(nodeID) {
 	d3.select('#clusterLogo' + nodeID).remove()
 }
 
+exports.parseTransform = parseTransform
 exports.buildLogo = buildLogo
 exports.removeLogo = removeLogo

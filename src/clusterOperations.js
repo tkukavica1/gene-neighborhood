@@ -37,8 +37,15 @@ function matchNodesAndClusters(node, leavesArr) {
 			d3.select(currentClusterID).transition()
 				.duration(500)
 				.attr('transform', 'translate(0, ' + newTranslateY + ')')
-			d3.select('#clusterLogo' + leavesArr[i].property('_id'))
-				.attr('transform', 'translate(0, ' + newTranslateY + ')') // Need to change 0 to the same x translate as before
+			try {
+				let xTranslate = d3.select('#clusterLogo' + leavesArr[i].property('_id')).attr('x-translate')
+				d3.select('#clusterLogo' + leavesArr[i].property('_id')).transition()
+					.duration(500)
+					.attr('transform', 'translate(' + xTranslate + ', ' + newTranslateY + ')') // Need to change 0 to the same x translate as before
+			}
+			catch (err) {
+				// Checking if each node in the subtree has a corresponding cluster logo
+			}
 		}
 		catch (err) {
 			console.log('Caught an error.')
@@ -76,8 +83,8 @@ function matchNodesAndClustersCollapsed(tree, node, leavesArr, type) {
 				let newTranslateY = treeLeavesArr[i].property('leafIndex') * 55 + 5
 				let currentClusterID = treeLeavesArr[i].property('correspondingClusterID')
 				d3.select(currentClusterID).transition()
-				.duration(500)
-				.attr('transform', 'translate(0, ' + newTranslateY + ')')
+					.duration(500)
+					.attr('transform', 'translate(0, ' + newTranslateY + ')')
 			}
 		}
 		catch (err) {
@@ -114,14 +121,14 @@ function canAlign(node) {
 	let leavesArr = node.get_all_leaves()
 	for (let i = 0; i < leavesArr.length; i++) {
 		try {
-			let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
-			let currentClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+			let currentClusterID = leavesArr[i].property('correspondingClusterID')
 			let currentClusterNum = Number(currentClusterID.substring(3))
 			let refNum = drawGN.geneHoodObject.gns[currentClusterNum].ref
 			if (drawGN.geneHoodObject.genes[refNum].groups.groups_.length < 2)
 				return false
 		}
 		catch (err) {
+			console.log('Caught an error.')
 			return false
 		}
 	}
@@ -143,8 +150,7 @@ function runAlignment(node) {
 	let leavesArr = node.get_all_leaves()
 	for (let i = 0; i < leavesArr.length; i++) {
 		let currentRow = [] // Row to be added to clusterMatrix representing this gene cluster
-		let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
-		let currentClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+		let currentClusterID = leavesArr[i].property('correspondingClusterID')
 		let currentClusterNum = Number(currentClusterID.substring(3))
 		let currentClusterObj = drawGN.geneHoodObject.gns[currentClusterNum]
 		let refGene = currentClusterObj.ref
@@ -264,8 +270,7 @@ function displayAlignmentResult(node) {
 	let leavesArr = node.get_all_leaves()
 	try {
 		for (let i = 0; i < leavesArr.length; i++) {
-			let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
-			let currentClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+			let currentClusterID = leavesArr[i].property('correspondingClusterID')
 			let currentClusterNum = Number(currentClusterID.substring(3))
 			let currentClusterObj = drawGN.geneHoodObject.gns[currentClusterNum]
 			for (let j = 0; j < currentClusterObj.cluster.length; j++) {
@@ -285,8 +290,7 @@ function displayAlignmentResult(node) {
 		// console.log(homologueIDs)
 		for (let i = 0; i < leavesArr.length; i++) {
 			let clusterResult = clusterMatrix[i]
-			let currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
-			let currentClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+			let currentClusterID = leavesArr[i].property('correspondingClusterID')
 			let currentClusterNum = Number(currentClusterID.substring(3))
 			let currentClusterObj = drawGN.geneHoodObject.gns[currentClusterNum]
 			let currentClusterRefID = clusterIDs[currentClusterObj.ref]
@@ -535,8 +539,7 @@ function turnOffAndResetClusters(node) {
 		let clusterMatrix = node.property('alignment').clusterMatrix
 		for (let i = 0; i < clusterMatrix.length; i++) {
 			for (let j = 0; j < clusterMatrix[i].length; j++) {
-				currentNodeID = '#tnt_tree_node_treeBox_' + leavesArr[i].property('_id')
-				let currClusterID = d3.select(currentNodeID).attr('correspondingClusterID')
+				let currClusterID = leavesArr[i].property('correspondingClusterID')
 				let currClusterNum = Number(currClusterID.substring(3))
 				if (clusterMatrix[i][j] !== '-') {
 					let precedingGene = findPrecedingGene(drawGN.geneHoodObject.gns[currClusterNum], clusterMatrix[i][j])
