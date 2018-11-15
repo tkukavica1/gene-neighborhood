@@ -185,7 +185,6 @@ class DrawGN {
 				self.interactiveParams.searched.clear()
 				this.toggleGeneSelection_(geneIndex)
 				// console.log(`Toggle took ${performance.now() - t0} ms`)
-
 			})
 			.on('mouseover', (geneIndex) => {
 				this.displayGeneInfo_(geneIndex, '#divTip')
@@ -476,7 +475,9 @@ class DrawGN {
 			begin += this.width / 2
 		else
 			begin -= this.width / 2
-		const length = this.xDom(gene.stop - refStart) - this.xDom(gene.start - refStart)
+		let length = this.xDom(gene.stop - refStart) - this.xDom(gene.start - refStart)
+		if (gene.start > gene.stop)
+			length = this.xDom(gene.stop + gene.start - refStart) - this.xDom(gene.start - refStart)
 		const path = this.makePathOfOneGene_(
 			begin,
 			length,

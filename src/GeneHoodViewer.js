@@ -96,8 +96,8 @@ class GeneHoodViewer {
 			zoomHandler(treeSVG)
 
 			// Setting height of viewing window to window dimensions.
-			treeSVG.style('height', dimensions.height)
-			svg.attr('height', dimensions.height)
+			treeSVG.style('height', dimensions.height * 5/4)
+			svg.attr('height', dimensions.height * 5/4)
 		}
 		else {
 			console.log('Error')
