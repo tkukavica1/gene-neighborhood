@@ -88,7 +88,7 @@ function writeFasta() {
 		const genomeVersion = chunk.ref.split('-')[0]
 		mistGenomes.getGenomeInfoByVersion(genomeVersion).then((genomeInfo) => {
 			const mkFasta = new NodeMist3.MakeFasta(genomeInfo)
-			const fastaEntries = mkFasta.process(chunk.gn, {skipNull: true})
+			const fastaEntries = mkFasta.processMany(chunk.gn, {skipNull: true})
 			this.push(fastaEntries.join(''))
 			next()
 		})
