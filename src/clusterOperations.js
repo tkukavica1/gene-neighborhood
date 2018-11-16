@@ -392,9 +392,10 @@ function shiftGenesRight(currentClusterNum, clusterResult, index, shiftWidth) {
 			let currentTranslate = d3.select('#GN' + currentClusterNum)
 				.select('.gene' + precedingGene)
 				.attr('shift-x')
-			let newX = d3.select('#GN' + currentClusterNum)
+			let newX = currentTranslate + shiftWidth
+			d3.select('#GN' + currentClusterNum)
 				.select('.gene' + precedingGene)
-				.attr('shift-x', currentTranslate + shiftWidth)
+				.attr('shift-x', newX)
 			d3.select('#GN' + currentClusterNum)
 				.select('.gene' + precedingGene)
 				.attr('transform', 'translate(' + newX + ', 0)')
